@@ -32,7 +32,7 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 

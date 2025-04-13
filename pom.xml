@@ -6,12 +6,12 @@
 
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
     <name>Invoice Java SDK</name>
     <description>发票 Java SDK 电子发票/数电发票/全电发票/数电票/开票</description>
-    <url>https://github.com/fapiaoapi/invoice-java-sdk</url>
+    <url>https://github.com/fapiaoapi/invoice-sdk-java</url>
 
     <licenses>
         <license>
