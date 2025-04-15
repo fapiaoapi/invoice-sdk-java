@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,7 +35,7 @@ public class ApiResponse<T> {
     }
     
     public String getMsg() {
-        return msg;
+        return msg == null ? "" : msg;
     }
     
     public void setMsg(String msg) {
@@ -92,8 +93,12 @@ public class ApiResponse<T> {
      * @throws Exception JSON 解析异常
      */
     public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception {
-        return objectMapper.readValue(json, 
-            new TypeReference<ApiResponse<Map<String, Object>>>() {});
+        return objectMapper.readValue(json, new TypeReference<ApiResponse<Map<String, Object>>>() {});
+    }
+    
+
+    public static ApiResponse<List<Map<String, Object>>> fromJsonListMap(String json) throws Exception {
+        return objectMapper.readValue(json, new TypeReference<ApiResponse<List<Map<String, Object>>>>() {});
     }
 
 }

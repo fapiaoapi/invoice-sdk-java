@@ -7,7 +7,9 @@ import tax.invoice.model.AuthorizationResponse;
 
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 数电发票客户端
@@ -213,6 +215,39 @@ public class InvoiceClient {
      */
     public ApiResponse<Map<String, Object>> queryCreditLimit(Map<String, String> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/creditLine", params, authorization);
+        return ApiResponse.fromJsonMap(response.body());
+    }
+
+    /**
+     * 查询list
+     * @param params 查询参数
+     * @return 查询响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<List<Map<String, Object>>> queryList(String path,Map<String, String> params,String method) throws Exception {
+        HttpResponse<String> response = Objects.equals(method, "POST") ? httpClient.post(path, params, authorization):httpClient.get(path, params, authorization);
+        return ApiResponse.fromJsonListMap(response.body());
+    }
+
+    /**
+     *  发起post请求
+     * @param params 查询参数
+     * @return 响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<Map<String, Object>> httpPost(String path,Map<String, String> params) throws Exception {
+        HttpResponse<String> response = httpClient.post(path, params, authorization);
+        return ApiResponse.fromJsonMap(response.body());
+    }
+
+    /**
+     * 发起get请求
+     * @param params 类型
+     * @return 响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<Map<String, Object>> httpGet(String path,Map<String, String> params) throws Exception {
+        HttpResponse<String> response = httpClient.get(path, params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
     
