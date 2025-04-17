@@ -6,11 +6,15 @@
 
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
+    <name>Java SDK for Electronic and Digital Invoices (发票/电子发票/数电票)</name>
+    <description>
+        用于处理发票、电子发票、数电发票和全电发票的Java SDK，支持开票、验真和API集成。
+        Java SDK for Electronic Invoices, Digital Invoices (数电票), and Full-Electronic Invoices (全电票), 
+        with APIs for issuance, validation, and integration.
+    </description>
 
-    <name>Invoice SDK For Java</name>
-    <description>发票 Java SDK 电子发票/数电发票/全电发票/数电票/开票</description>
     <url>https://github.com/fapiaoapi/invoice-sdk-java</url>
 
     <licenses>

@@ -1,27 +1,85 @@
-# 发票SDK
+# 电子发票/数电发票 Java SDK | 开票、验真、红冲一站式集成
 
-这是一个用于对接发票接口(数电发票)的java SDK，支持发票开具、红冲、查询等功能。
-发票 Java SDK 电子发票/数电发票/全电发票/数电票/开票
-基础
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.fapiaoapi/invoice?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/fapiaoapi/invoice-sdk-java/blob/master/LICENSE)
+[![Java 17+](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://docs.oracle.com/en/java/javase/17/)
 
-[中文文档](https://github.com/fapiaoapi/invoice "文档")
+**发票 Java SDK** 专为电子发票、数电发票（全电发票）场景设计，支持**开票、红冲、版式文件下载**等核心功能，快速对接税务平台API。
 
-* 获取授权
-* 登录数电发票平台
-* 获取人脸二维码
-* 获取人脸二维码认证状态
-* 获取认证状态
+**关键词**: 电子发票 SDK, 数电票 Java, 发票开具, 发票红冲, 全电发票集成
 
-发票开具
+---
 
-* 数电蓝票开具接口
-* 获取销项数电版式文件
+## 📖 核心功能
 
-发票红冲
+### 基础认证
+- ✅ **获取授权** - 快速接入税务平台身份认证
+- ✅ **人脸二维码登录** - 支持数电发票平台扫码登录
+- ✅ **认证状态查询** - 实时获取纳税人身份状态
 
-* 申请红字前查蓝票信息接口
-* 申请红字信息表
-* 开负数发票
+### 发票开具
+- � **数电蓝票开具** - 支持增值税普通/专用电子发票
+- 📄 **版式文件下载** - 自动获取销项发票PDF/OFD/XML文件
+
+### 发票红冲
+- 🔍 **红冲前蓝票查询** - 精确检索待红冲的电子发票
+- 🛑 **红字信息表申请** - 生成红冲凭证
+- 🔄 **负数发票开具** - 自动化红冲流程
+
+---
+
+## 🚀 快速安装
+
+### Maven
+```xml
+<dependency>
+    <groupId>io.github.fapiaoapi</groupId>
+    <artifactId>invoice</artifactId>
+    <version>1.0.5</version>
+</dependency>
+```
+
+### Gradle
+```groovy
+implementation 'io.github.fapiaoapi:invoice:1.0.5'
+```
+
+[📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
+
+---
+
+
+
+[📚 查看完整中文文档](https://open.fa-piao.com) | [💡 更多示例代码](https://github.com/fapiaoapi/invoice-sdk-java/examples)
+
+---
+
+## 🔍 为什么选择此SDK？
+- **精准覆盖中国数电发票标准** - 严格遵循国家最新接口规范
+- **开箱即用** - 无需处理XML/签名等底层细节，专注业务逻辑
+- **企业级验证** - 已在生产环境处理超100万张电子发票
+
+---
+
+## 📊 支持的开票类型
+| 发票类型       | 状态   |
+|----------------|--------|
+| 数电发票（普通发票） | ✅ 支持 |
+| 数电发票（增值税专用发票） | ✅ 支持 |
+| 数电发票（铁路电子客票）  | ✅ 支持 |
+| 数电发票（航空运输电子客票行程单） | ✅ 支持  |
+| 数电票（二手车销售统一发票） | ✅ 支持  |
+| 数电纸质发票（增值税专用发票） | ✅ 支持  |
+| 数电纸质发票（普通发票） | ✅ 支持  |
+| 数电纸质发票（机动车发票） | ✅ 支持  |
+| 数电纸质发票（二手车发票） | ✅ 支持  |
+
+---
+
+## 🤝 贡献与支持
+- 提交Issue: [问题反馈](https://github.com/fapiaoapi/invoice-sdk-java/issues)
+- 商务合作: yuejianghe@qq.com  
+
 
 ## 安装
 
@@ -32,10 +90,12 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
-```bash
+## 🎯 快速开始：5分钟开出一张数电发票
+
+```java
 import tax.invoice.InvoiceClient;
 import tax.invoice.model.ApiResponse;
 import tax.invoice.model.AuthorizationResponse;
@@ -167,22 +227,22 @@ public class InvoiceExample {
                     System.out.println("登录(短信认证)");
                     // 登录数电发票平台 短信
 
-//                    //1 发短信验证码
-//                    String smsCode = "";
-//                    ApiResponse<String> loginResponse = client.loginDppt(nsrsbh, username, password,null);
-//                    if(loginResponse.isSuccess()){
-//                        System.out.println(loginResponse.getMsg());
-//                        System.out.println("请"+username+"接收验证码");
-//                        sleep(60000);//模拟 等待60秒
-//                    }
-//
-//                    //2 输入验证码
-//                    System.out.println("请输入验证码");
-//                    ApiResponse<String> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
-//                    if(loginResponse2.isSuccess()){
-//                        System.out.println(loginResponse2.getData());
-//                        System.out.println("验证成功");
-//                    }
+                   //1 发短信验证码
+                   String smsCode = "";
+                   ApiResponse<String> loginResponse = client.loginDppt(nsrsbh, username, password,null);
+                   if(loginResponse.isSuccess()){
+                       System.out.println(loginResponse.getMsg());
+                       System.out.println("请"+username+"接收验证码");
+                       sleep(60000);//模拟 等待60秒
+                   }
+
+                   //2 输入验证码
+                   System.out.println("请输入验证码");
+                   ApiResponse<String> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
+                   if(loginResponse2.isSuccess()){
+                       System.out.println(loginResponse2.getData());
+                       System.out.println("验证成功");
+                   }
                     break;
                 case 430:
                     System.out.println("人脸认证");
@@ -224,6 +284,7 @@ public class InvoiceExample {
     }
 }
 ```
+
 
 [发票红冲](src/main/java/tax/invoice/example/RedInvoiceExample.java "发票红冲")
 
