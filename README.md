@@ -50,7 +50,7 @@ implementation 'io.github.fapiaoapi:invoice:1.0.5'
 
 
 
-[📚 查看完整中文文档](https://open.fa-piao.com) | [💡 更多示例代码](https://github.com/fapiaoapi/invoice-sdk-java/examples)
+[📚 查看完整中文文档](https://fa-piao.com/doc.html) | [💡 更多示例代码](https://github.com/fapiaoapi/invoice-sdk-java/examples)
 
 ---
 
