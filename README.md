@@ -6,7 +6,7 @@
 
 **发票 Java SDK** 专为电子发票、数电发票（全电发票）场景设计，支持**开票、红冲、版式文件下载**等核心功能，快速对接税务平台API。
 
-**关键词**: 电子发票 SDK, 数电票 Java, 发票开具, 发票红冲, 全电发票集成
+**关键词**: 电子发票SDK,数电票Java,开票接口,发票api,发票开具,发票红冲,全电发票集成
 
 ---
 
@@ -18,7 +18,7 @@
 - ✅ **认证状态查询** - 实时获取纳税人身份状态
 
 ### 发票开具
-- � **数电蓝票开具** - 支持增值税普通/专用电子发票
+- 🎫 **数电蓝票开具** - 支持增值税普通/专用电子发票
 - 📄 **版式文件下载** - 自动获取销项发票PDF/OFD/XML文件
 
 ### 发票红冲
@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.5'
+implementation 'io.github.fapiaoapi:invoice:1.0.6'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
@@ -50,7 +50,7 @@ implementation 'io.github.fapiaoapi:invoice:1.0.5'
 
 
 
-[📚 查看完整中文文档](https://open.fa-piao.com) | [💡 更多示例代码](https://github.com/fapiaoapi/invoice-sdk-java/examples)
+[📚 查看完整中文文档](https://fa-piao.com/doc.html) | [💡 更多示例代码](https://github.com/fapiaoapi/invoice-sdk-java/tree/master/src/main/java/tax/invoice/example)
 
 ---
 
@@ -81,27 +81,19 @@ implementation 'io.github.fapiaoapi:invoice:1.0.5'
 - 商务合作: yuejianghe@qq.com  
 
 
-## 安装
-
-通过maven安装:
-[maven地址](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice "发票sdk")
-
-```bash
-<dependency>
-    <groupId>io.github.fapiaoapi</groupId>
-    <artifactId>invoice</artifactId>
-    <version>1.0.5</version>
-</dependency>
-```
 ## 🎯 快速开始：5分钟开出一张数电发票
 
 ```java
+package tax.invoice.example;
+
 import tax.invoice.InvoiceClient;
 import tax.invoice.model.ApiResponse;
 import tax.invoice.model.AuthorizationResponse;
 import tax.invoice.util.OtherUtil;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,6 +122,9 @@ public class InvoiceExample {
 
             String token = "";
 
+
+
+
             // 创建客户端
             InvoiceClient client = new InvoiceClient(appKey, appSecret);
             if (token != null && !token.isEmpty()) {
@@ -147,15 +142,15 @@ public class InvoiceExample {
             switch (statusResponse.getCode()) {
                 case 200:
                     System.out.println("认证状态: 无需认证");
-//                    //授信额度查询
-//                    Map<String, String> creditParams = new HashMap<>();
-//                    creditParams.put("nsrsbh", nsrsbh);
-//                    creditParams.put("username", username);
-//                    ApiResponse<Map<String, Object>> creditLimitResponse = client.queryCreditLimit(creditParams);
-//                    System.out.println(creditLimitResponse.getCode());
-//                    if (creditLimitResponse.getCode() == 200) {
-//                        System.out.println(creditLimitResponse.getData());
-//                    }
+                    //授信额度查询
+                    Map<String, String> creditParams = new HashMap<>();
+                    creditParams.put("nsrsbh", nsrsbh);
+                    creditParams.put("username", username);
+                    ApiResponse<Map<String, Object>> creditLimitResponse = client.queryCreditLimit(creditParams);
+                    System.out.println(creditLimitResponse.getCode());
+                    if (creditLimitResponse.getCode() == 200) {
+                        System.out.println(creditLimitResponse.getData());
+                    }
 
 
                     // 开具蓝票示例
@@ -169,18 +164,18 @@ public class InvoiceExample {
                     invoiceParams.put("xhdwyhzh", "中国工商银行 310008670920023xxxx");
 
                     invoiceParams.put("ghdwmc", "个人");
-//                    invoiceParams.put("ghdwsbh", "914401017397375296");
+                    //                    invoiceParams.put("ghdwsbh", "914401017397375296");
                     invoiceParams.put("zsfs", "0");
 
-//                    double amount = 200;
-//                    double taxRate = 0.01;
-//                    boolean isIncludeTax = true;//是否含税
-//                    //税额计算
-//                    String se =  OtherUtil.calculateTax(amount,taxRate,isIncludeTax);
-//                    System.out.println("价税合计："+amount);
-//                    System.out.println("税率："+taxRate);
-//                    System.out.println("合计金额："+(amount-Double.parseDouble(se)));
-//                    System.out.println((isIncludeTax ? "含税" : "不含税")+" 合计税额："+se);
+//                     BigDecimal amount = new BigDecimal(200);  // 使用BigDecimal构造函数创建对象
+//                     BigDecimal taxRate = new BigDecimal(0.01);  // 使用BigDecimal构造函数创建对象
+//                     boolean isIncludeTax = true;//是否含税
+//                     //税额计算
+//                     BigDecimal se = OtherUtil.calculateTax(amount, taxRate, isIncludeTax,2);  // 直接接收BigDecimal返回值
+//                     System.out.println("价税合计：" + amount);
+//                     System.out.println("税率：" + taxRate.setScale(2, RoundingMode.HALF_UP));
+//                     System.out.println("合计金额：" + amount.subtract(se));  // 使用BigDecimal的subtract方法
+//                     System.out.println((isIncludeTax ? "含税" : "不含税") + " 合计税额：" + se);
 
                     // 添加商品明细
                     invoiceParams.put("fyxm[0][fphxz]", "0");
@@ -210,16 +205,16 @@ public class InvoiceExample {
                     pdfParams.put("downflag", "4");
                     pdfParams.put("nsrsbh", nsrsbh);
                     pdfParams.put("username", username);
-//                    pdfParams.put("fphm", invoiceResponse.getData().get("Fphm").toString());
-//                    pdfParams.put("Kprq", invoiceResponse.getData().get("Kprq").toString());
+                    //                    pdfParams.put("fphm", invoiceResponse.getData().get("Fphm").toString());
+                    //                    pdfParams.put("Kprq", invoiceResponse.getData().get("Kprq").toString());
                     pdfParams.put("fphm", fphm);
                     ApiResponse<Map<String, Object>> pdfResponse = client.getPdfOfdXml(pdfParams);
                     if (pdfResponse.isSuccess()){
                         System.out.println(pdfResponse.getData());
                         // 循环打印pdfResponse.getData()内容
-//                        for (Map.Entry<String, Object> entry : pdfResponse.getData().entrySet()) {
-//                            System.out.println(entry.getKey() + ": " + entry.getValue());
-//                        }
+                        //                        for (Map.Entry<String, Object> entry : pdfResponse.getData().entrySet()) {
+                        //                            System.out.println(entry.getKey() + ": " + entry.getValue());
+                        //                        }
                     }
 
                     break;
@@ -227,22 +222,22 @@ public class InvoiceExample {
                     System.out.println("登录(短信认证)");
                     // 登录数电发票平台 短信
 
-                   //1 发短信验证码
-                   String smsCode = "";
-                   ApiResponse<String> loginResponse = client.loginDppt(nsrsbh, username, password,null);
-                   if(loginResponse.isSuccess()){
-                       System.out.println(loginResponse.getMsg());
-                       System.out.println("请"+username+"接收验证码");
-                       sleep(60000);//模拟 等待60秒
-                   }
-
-                   //2 输入验证码
-                   System.out.println("请输入验证码");
-                   ApiResponse<String> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
-                   if(loginResponse2.isSuccess()){
-                       System.out.println(loginResponse2.getData());
-                       System.out.println("验证成功");
-                   }
+                    //                    //1 发短信验证码
+                    //                    String smsCode = "";
+                    //                    ApiResponse<String> loginResponse = client.loginDppt(nsrsbh, username, password,null);
+                    //                    if(loginResponse.isSuccess()){
+                    //                        System.out.println(loginResponse.getMsg());
+                    //                        System.out.println("请"+username+"接收验证码");
+                    //                        sleep(60000);//模拟 等待60秒
+                    //                    }
+                    //
+                    //                    //2 输入验证码
+                    //                    System.out.println("请输入验证码");
+                    //                    ApiResponse<String> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
+                    //                    if(loginResponse2.isSuccess()){
+                    //                        System.out.println(loginResponse2.getData());
+                    //                        System.out.println("验证成功");
+                    //                    }
                     break;
                 case 430:
                     System.out.println("人脸认证");
@@ -257,7 +252,7 @@ public class InvoiceExample {
 
                     //2  认证完成后  获取人脸二维码认证状态
                     String rzid = qrCodeResponse.getData().get("rzid").toString();
-//                    String rzid = "5c028e62f23e4b5ca57668bc74c0de98";
+                    //                    String rzid = "5c028e62f23e4b5ca57668bc74c0de98";
                     ApiResponse<Map<String, Object>> faceStatusResponse = client.getFaceState(nsrsbh, rzid, username, "1");
                     System.out.println("code: " + faceStatusResponse.getCode());
                     System.out.println("data: " + faceStatusResponse.getData());

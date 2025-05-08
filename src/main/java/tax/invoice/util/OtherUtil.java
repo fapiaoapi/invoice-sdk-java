@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Random;
 import java.util.regex.Pattern;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class OtherUtil {
 
@@ -90,30 +92,7 @@ public class OtherUtil {
         return Pattern.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", email);
     }
 
-    /**
-     * 格式化金额（保留2位小数）
-     *
-     * @param amount 金额
-     * @return String
-     */
-    public static String formatAmount(double amount) {
-        DecimalFormat df = new DecimalFormat("0.00");
-        return df.format(amount);
-    }
 
-    /**
-     * 格式化金额（保留2位小数）
-     *
-     * @param amount 金额字符串
-     * @return String
-     */
-    public static String formatAmount(String amount) {
-        try {
-            return formatAmount(Double.parseDouble(amount));
-        } catch (NumberFormatException e) {
-            return "0.00";
-        }
-    }
 
     /**
      * 计算税额
@@ -121,40 +100,24 @@ public class OtherUtil {
      * @param amount       金额
      * @param taxRate      税率
      * @param isIncludeTax 是否含税
-     * @return String
+     * @param newScale     小数位数
+     * @return BigDecimal
      */
-    public static String calculateTax(double amount, double taxRate, boolean isIncludeTax) {
-        double tax;
+    public static BigDecimal calculateTax(BigDecimal amount, BigDecimal taxRate, boolean isIncludeTax,int newScale) {
+        BigDecimal tax;
 
         if (isIncludeTax) {
             // 含税计算：税额 = 金额 / (1 + 税率) * 税率
-            tax = amount / (1 + taxRate) * taxRate;
+            tax = amount.divide(BigDecimal.ONE.add(taxRate), 10, RoundingMode.HALF_UP)
+                    .multiply(taxRate)
+                    .setScale(newScale, RoundingMode.HALF_UP);
         } else {
             // 不含税计算：税额 = 金额 * 税率
-            tax = amount * taxRate;
+            tax = amount.multiply(taxRate)
+                    .setScale(newScale, RoundingMode.HALF_UP);
         }
 
-        return formatAmount(tax);
-    }
-
-    /**
-     * 计算税额（字符串参数版本）
-     *
-     * @param amount       金额字符串
-     * @param taxRate      税率字符串
-     * @param isIncludeTax 是否含税
-     * @return String
-     */
-    public static String calculateTax(String amount, String taxRate, boolean isIncludeTax) {
-        try {
-            return calculateTax(
-                    Double.parseDouble(amount),
-                    Double.parseDouble(taxRate),
-                    isIncludeTax
-            );
-        } catch (NumberFormatException e) {
-            return "0.00";
-        }
+        return tax;
     }
 
     /**
@@ -162,62 +125,26 @@ public class OtherUtil {
      *
      * @param amount  含税金额
      * @param taxRate 税率
-     * @return String
+     * @param newScale              小数位数
+     * @return BigDecimal
      */
-    public static String calculateAmountWithoutTax(double amount, double taxRate) {
+    public static BigDecimal calculateAmountWithoutTax(BigDecimal amount, BigDecimal taxRate,int newScale) {
         // 不含税金额 = 含税金额 / (1 + 税率)
-        double amountWithoutTax = amount / (1 + taxRate);
-        return formatAmount(amountWithoutTax);
+        return amount.divide(BigDecimal.ONE.add(taxRate), 10, RoundingMode.HALF_UP)
+                .setScale(newScale, RoundingMode.HALF_UP);
     }
 
-    /**
-     * 计算不含税金额（字符串参数版本）
-     *
-     * @param amount  含税金额字符串
-     * @param taxRate 税率字符串
-     * @return String
-     */
-    public static String calculateAmountWithoutTax(String amount, String taxRate) {
-        try {
-            return calculateAmountWithoutTax(
-                    Double.parseDouble(amount),
-                    Double.parseDouble(taxRate)
-            );
-        } catch (NumberFormatException e) {
-            return "0.00";
-        }
-    }
 
-    /**
-     * 计算含税金额
-     *
-     * @param amount  不含税金额
-     * @param taxRate 税率
-     * @return String
-     */
-    public static String calculateAmountWithTax(double amount, double taxRate) {
-        // 含税金额 = 不含税金额 * (1 + 税率)
-        double amountWithTax = amount * (1 + taxRate);
-        return formatAmount(amountWithTax);
-    }
 
-    /**
-     * 计算含税金额（字符串参数版本）
-     *
-     * @param amount  不含税金额字符串
-     * @param taxRate 税率字符串
-     * @return String
-     */
-    public static String calculateAmountWithTax(String amount, String taxRate) {
-        try {
-            return calculateAmountWithTax(
-                    Double.parseDouble(amount),
-                    Double.parseDouble(taxRate)
-            );
-        } catch (NumberFormatException e) {
-            return "0.00";
-        }
-    }
+
+
+
+
+
+
+
+
+
 
     /**
      * 将金额转换为中文大写
