@@ -48,6 +48,29 @@ public class InvoiceClient {
         
         return apiResponse;
     }
+
+    /**
+     * 获取授权
+     * @param nsrsbh 纳税人识别号
+     * @param type 类型 5 管理
+     * @return 授权响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<AuthorizationResponse> getAuthorization(String nsrsbh,String type) throws Exception {
+        Map<String, String> formData = new HashMap<>();
+        formData.put("nsrsbh", nsrsbh);
+        formData.put("type", type);
+        HttpResponse<String> response = httpClient.post("/v5/enterprise/authorization", formData, null);
+        ApiResponse<AuthorizationResponse> apiResponse = ApiResponse.fromJson(
+                response.body(), AuthorizationResponse.class);
+
+        if (apiResponse.isSuccess() && apiResponse.getData() != null) {
+            this.authorization = apiResponse.getData().getToken();
+        }
+
+        return apiResponse;
+    }
+
     
     /**
      * 登录数电发票平台

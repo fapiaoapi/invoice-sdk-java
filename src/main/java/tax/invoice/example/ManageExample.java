@@ -39,7 +39,7 @@ public class ManageExample {
                 client.setAuthorization(token);
             } else {
                 // 获取授权
-                ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization("92500103MAD7F8H17D");
+                ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization("92500103MAD7F8H17D","5");
                 if (authResponse.isSuccess()) {
                     System.out.println("授权成功，Token: " + authResponse.getData().getToken());
                 }else{
