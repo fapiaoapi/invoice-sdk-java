@@ -6,6 +6,7 @@ import tax.invoice.util.SignatureUtil;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
 
@@ -31,7 +32,7 @@ public class HttpClient {
      * @return HTTP响应
      * @throws Exception 请求异常
      */
-    public HttpResponse<String> post(String path, Map<String, String> formData, String authorization) throws Exception {
+    public HttpResponse<String> post(String path, Map<String, Object> formData, String authorization) throws Exception {
         String method = "POST";
         String randomString = SignatureUtil.generateRandomString(20);
         String timestamp = SignatureUtil.getCurrentTimestamp();
@@ -115,19 +116,22 @@ public class HttpClient {
      * @param boundary 分隔符
      * @return 表单数据字符串
      */
-    private String buildMultipartBody(Map<String, String> data, String boundary) {
+    private String buildMultipartBody(Map<String, Object> data, String boundary) {
         if (data == null || data.isEmpty()) {
             return "--" + boundary + "--\r\n";
         }
         
         StringBuilder body = new StringBuilder();
         
-        for (Map.Entry<String, String> entry : data.entrySet()) {
+        // 使用LinkedHashMap保持顺序
+        Map<String, Object> orderedData = new LinkedHashMap<>(data);
+        
+        for (Map.Entry<String, Object> entry : orderedData.entrySet()) {
             if (entry.getValue() != null) {
                 body.append("--").append(boundary).append("\r\n")
                     .append("Content-Disposition: form-data; name=\"")
                     .append(entry.getKey()).append("\"\r\n\r\n")
-                    .append(entry.getValue()).append("\r\n");
+                    .append(entry.getValue().toString()).append("\r\n");
             }
         }
         body.append("--").append(boundary).append("--\r\n");

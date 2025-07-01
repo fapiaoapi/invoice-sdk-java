@@ -35,7 +35,7 @@ public class InvoiceClient {
      * @throws Exception 请求异常
      */
     public ApiResponse<AuthorizationResponse> getAuthorization(String nsrsbh) throws Exception {
-        Map<String, String> formData = new HashMap<>();
+        Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         
         HttpResponse<String> response = httpClient.post("/v5/enterprise/authorization", formData, null);
@@ -57,7 +57,7 @@ public class InvoiceClient {
      * @throws Exception 请求异常
      */
     public ApiResponse<AuthorizationResponse> getAuthorization(String nsrsbh,String type) throws Exception {
-        Map<String, String> formData = new HashMap<>();
+        Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         formData.put("type", type);
         HttpResponse<String> response = httpClient.post("/v5/enterprise/authorization", formData, null);
@@ -82,7 +82,7 @@ public class InvoiceClient {
      * @throws Exception 请求异常
      */
     public ApiResponse<String> loginDppt(String nsrsbh, String username, String password, String sms) throws Exception {
-        Map<String, String> formData = new HashMap<>();
+        Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         formData.put("username", username);
         formData.put("password", password);
@@ -153,7 +153,7 @@ public class InvoiceClient {
      * @throws Exception 请求异常
      */
     public ApiResponse<String> queryFaceAuthState(String nsrsbh, String username) throws Exception {
-        Map<String, String> formData = new HashMap<>();
+        Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         
         if (username != null && !username.isEmpty()) {
@@ -170,10 +170,12 @@ public class InvoiceClient {
      * @return 开票响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> blueTicket(Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> blueTicket(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/blueTicket", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
+
+
     
     /**
      * 获取销项数电版式文件
@@ -181,7 +183,7 @@ public class InvoiceClient {
      * @return 版式文件响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> getPdfOfdXml(Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> getPdfOfdXml(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/pdfOfdXml", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
@@ -192,7 +194,7 @@ public class InvoiceClient {
      * @return 蓝票信息响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> queryBlueTicketInfo(Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> queryBlueTicketInfo(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/retMsg", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
@@ -203,7 +205,7 @@ public class InvoiceClient {
      * @return 申请响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> applyRedInfo(Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> applyRedInfo(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/hzxxbsq", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
@@ -214,7 +216,7 @@ public class InvoiceClient {
      * @return 开票响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> redTicket(Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> redTicket(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/hzfpkj", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
@@ -225,7 +227,7 @@ public class InvoiceClient {
      * @return 切换响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<String> switchAccount(Map<String, String> params) throws Exception {
+    public ApiResponse<String> switchAccount(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/switchAccount", params, authorization);
         return ApiResponse.fromJson(response.body());
     }
@@ -236,7 +238,7 @@ public class InvoiceClient {
      * @return 查询响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> queryCreditLimit(Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> queryCreditLimit(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/creditLine", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
@@ -247,8 +249,15 @@ public class InvoiceClient {
      * @return 查询响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<List<Map<String, Object>>> queryList(String path,Map<String, String> params,String method) throws Exception {
-        HttpResponse<String> response = Objects.equals(method, "POST") ? httpClient.post(path, params, authorization):httpClient.get(path, params, authorization);
+    public ApiResponse<List<Map<String, Object>>> queryList(String path,Map<String, Object> params,String method) throws Exception {
+        Map<String, String> param = new HashMap<>();
+        if (Objects.equals(method, "GET")) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                param.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        HttpResponse<String> response = Objects.equals(method, "POST") ? httpClient.post(path, params, authorization):httpClient.get(path, param, authorization);
         return ApiResponse.fromJsonListMap(response.body());
     }
 
@@ -258,7 +267,7 @@ public class InvoiceClient {
      * @return 响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<Map<String, Object>> httpPost(String path,Map<String, String> params) throws Exception {
+    public ApiResponse<Map<String, Object>> httpPost(String path,Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post(path, params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }

@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.10</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.7'
+implementation 'io.github.fapiaoapi:invoice:1.0.10'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
@@ -143,7 +143,7 @@ public class InvoiceExample {
                 case 200:
                     System.out.println("认证状态: 无需认证");
                     //授信额度查询
-                    Map<String, String> creditParams = new HashMap<>();
+                    Map<String, Object> creditParams = new HashMap<>();
                     creditParams.put("nsrsbh", nsrsbh);
                     creditParams.put("username", username);
                     ApiResponse<Map<String, Object>> creditLimitResponse = client.queryCreditLimit(creditParams);
@@ -154,7 +154,7 @@ public class InvoiceExample {
 
 
                     // 开具蓝票示例
-                    Map<String, String> invoiceParams = new HashMap<>();
+                    Map<String, Object> invoiceParams = new HashMap<>();
                     invoiceParams.put("fpqqlsh", appKey + System.currentTimeMillis());
                     invoiceParams.put("fplxdm", "82");
                     invoiceParams.put("kplx", "0");
@@ -201,7 +201,7 @@ public class InvoiceExample {
                         sleep(10000);
                     }
                     //下载发票
-                    Map<String, String> pdfParams = new HashMap<>();
+                    Map<String, Object> pdfParams = new HashMap<>();
                     pdfParams.put("downflag", "4");
                     pdfParams.put("nsrsbh", nsrsbh);
                     pdfParams.put("username", username);

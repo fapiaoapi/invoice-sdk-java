@@ -47,7 +47,7 @@ public class RedInvoiceExample {
 
             // 发票红冲
             // 1 数电申请红字前查蓝票信息接口
-            Map<String, String> queryInvoiceParams = new HashMap<>();
+            Map<String, Object> queryInvoiceParams = new HashMap<>();
             queryInvoiceParams.put("nsrsbh", nsrsbh);
             queryInvoiceParams.put("fphm", fphm);
             queryInvoiceParams.put("username", username);
@@ -59,7 +59,7 @@ public class RedInvoiceExample {
                 System.out.println("1 可以申请红字");
                 sleep(2000);
                 // 2 申请红字信息表
-                Map<String, String> applyRedParams = new HashMap<>();
+                Map<String, Object> applyRedParams = new HashMap<>();
                 applyRedParams.put("xhdwsbh", nsrsbh);
                 applyRedParams.put("yfphm", fphm);
                 applyRedParams.put("username", username);
@@ -71,7 +71,7 @@ public class RedInvoiceExample {
                     System.out.println("2 申请红字信息表" );
                     sleep(2000);
                     // 3 数电票负数开具
-                    Map<String, String> redInvoiceParams = new HashMap<>();
+                    Map<String, Object> redInvoiceParams = new HashMap<>();
                     redInvoiceParams.put("fpqqlsh", "red" + fphm);
                     redInvoiceParams.put("username", username);
                     redInvoiceParams.put("xhdwsbh", nsrsbh);
