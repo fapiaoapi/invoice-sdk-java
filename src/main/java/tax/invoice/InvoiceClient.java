@@ -73,7 +73,7 @@ public class InvoiceClient {
 
     
     /**
-     * 登录数电发票平台
+     * 短信登录数电发票平台
      * @param nsrsbh 纳税人识别号
      * @param username 用户名
      * @param password 密码
@@ -93,6 +93,33 @@ public class InvoiceClient {
         
         HttpResponse<String> response = httpClient.post("/v5/enterprise/loginDppt", formData, authorization);
         return ApiResponse.fromJson(response.body());
+    }
+
+    /**
+     * 人脸登录数电发票平台
+     * @param nsrsbh 纳税人识别号
+     * @param username 用户名
+     * @param password 密码
+     * @param sf 电子税务局身份 01:法定代表人，02:财务负责人，03:办税员，05:管理员,08:社保经办人，09:开票员，10:销售人员
+     * @param ewmlx 1 税务人脸二维码登录，10 税务 app 扫码登录2 个税人脸二维码登录，3 个税 app 扫码确认登录
+     * @param ewmid 第一次调用只传二维码类型(ewmlx)，会返回 ewmid 和二维码的 base64，第二次调用二维码类型跟第一次调用值必须一样，ewmid 使用第一次返回
+     * @return 登录响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<Map<String, Object>> FaceLoginDppt(String nsrsbh, String username, String password, String sf, String ewmlx, String ewmid) throws Exception {
+        Map<String, Object> formData = new HashMap<>();
+        formData.put("nsrsbh", nsrsbh);
+        formData.put("username", username);
+        formData.put("password", password);
+        formData.put("sf", sf);
+        formData.put("ewmlx", ewmlx);
+
+        if (ewmid != null && !ewmid.isEmpty()) {
+            formData.put("ewmid", ewmid);
+        }
+
+        HttpResponse<String> response = httpClient.post("/v5/enterprise/loginDppt", formData, authorization);
+        return ApiResponse.fromJsonMap(response.body());
     }
     
     /**

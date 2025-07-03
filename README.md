@@ -238,6 +238,7 @@ public class InvoiceExample {
                     //                        System.out.println(loginResponse2.getData());
                     //                        System.out.println("验证成功");
                     //                    }
+                    System.out.println("登录(人脸认证)");
                     break;
                 case 430:
                     System.out.println("人脸认证");
