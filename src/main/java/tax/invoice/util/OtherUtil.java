@@ -105,11 +105,18 @@ public class OtherUtil {
      */
     public static BigDecimal calculateTax(BigDecimal amount, BigDecimal taxRate, boolean isIncludeTax,int newScale) {
         BigDecimal tax;
-
+        if(taxRate == null || taxRate.compareTo(BigDecimal.ZERO) <= 0){
+            tax = BigDecimal.ZERO;
+            return tax;
+        }
         if (isIncludeTax) {
-            // 含税计算：税额 = 金额 / (1 + 税率) * 税率
-            tax = amount.divide(BigDecimal.ONE.add(taxRate), 10, RoundingMode.HALF_UP)
-                    .multiply(taxRate)
+//            //旧 含税计算：税额 = 金额 / (1 + 税率) * 税率
+//            tax = amount.divide(BigDecimal.ONE.add(taxRate), 10, RoundingMode.HALF_UP)
+//                    .multiply(taxRate)
+//                    .setScale(newScale, RoundingMode.HALF_UP);
+            //新 含税计算：税额 = 1 / (1 + 税率) * 税率 * 含税金额
+            tax = BigDecimal.ONE.divide(BigDecimal.ONE.add(taxRate), 10, RoundingMode.HALF_UP)
+                    .multiply(taxRate).multiply(amount)
                     .setScale(newScale, RoundingMode.HALF_UP);
         } else {
             // 不含税计算：税额 = 金额 * 税率
@@ -272,5 +279,33 @@ public class OtherUtil {
         } catch (IllegalArgumentException | IOException e) {
             return false;
         }
+    }
+
+    /**
+     * BigDecimal加法
+     */
+    public static BigDecimal add(BigDecimal a, BigDecimal b) {
+        return a.add(b).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * BigDecimal减法
+     */
+    public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
+        return a.subtract(b).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * BigDecimal乘法
+     */
+    public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
+        return a.multiply(b).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * BigDecimal除法
+     */
+    public static BigDecimal divide(BigDecimal a, BigDecimal b, int scale) {
+        return a.divide(b, scale, RoundingMode.HALF_UP);
     }
 }
