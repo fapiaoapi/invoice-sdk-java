@@ -2,11 +2,8 @@ package tax.invoice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -71,8 +68,12 @@ public class ApiResponse<T> {
      * @throws Exception JSON 解析异常
      */
     public static <T> ApiResponse<T> fromJson(String json, Class<T> dataClass) throws Exception {
-        return objectMapper.readValue(json, objectMapper.getTypeFactory()
-                .constructParametricType(ApiResponse.class, dataClass));
+        try {
+            return objectMapper.readValue(json, objectMapper.getTypeFactory()
+                    .constructParametricType(ApiResponse.class, dataClass));
+        } catch (Exception e) {
+            return buildErrorResponse(extractErrorMessage(json));
+        }
     }
     
     /**
@@ -93,12 +94,42 @@ public class ApiResponse<T> {
      * @throws Exception JSON 解析异常
      */
     public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception {
-        return objectMapper.readValue(json, new TypeReference<ApiResponse<Map<String, Object>>>() {});
+        try {
+            return objectMapper.readValue(json, new TypeReference<ApiResponse<Map<String, Object>>>() {});
+        } catch (Exception e) {
+            return buildErrorResponse(extractErrorMessage(json));
+        }
     }
     
 
     public static ApiResponse<List<Map<String, Object>>> fromJsonListMap(String json) throws Exception {
-        return objectMapper.readValue(json, new TypeReference<ApiResponse<List<Map<String, Object>>>>() {});
+        try {
+            return objectMapper.readValue(json, new TypeReference<ApiResponse<List<Map<String, Object>>>>() {});
+        } catch (Exception e) {
+            return buildErrorResponse(extractErrorMessage(json));
+        }
     }
 
+    private static String extractErrorMessage(String json) {
+        if (json == null || json.isBlank()) {
+            return "Empty response body";
+        }
+        try {
+            return objectMapper.readTree(json).asText(json.trim());
+        } catch (Exception e) {
+            String trimmed = json.trim();
+            if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+                return trimmed.substring(1, trimmed.length() - 1).replace("\\/", "/");
+            }
+            return trimmed;
+        }
+    }
+
+    private static <T> ApiResponse<T> buildErrorResponse(String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setCode(-1);
+        response.setMsg(message);
+        response.setData(null);
+        return response;
+    }
 }

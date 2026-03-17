@@ -63,9 +63,13 @@ public class FaceLoginExample {
                      System.out.println("======face======"+loginResponse.getCode());
                      if(loginResponse.isSuccess()){
                          System.out.println("请"+username+"做人脸识别");
-                         ewmid = loginResponse.getData().get("ewmid").toString();
-                         //使用对应的app做人脸验证
-                         qrcode = loginResponse.getData().get("qrcode").toString();
+                         Map<String, Object> loginData = loginResponse.getData();
+                         if (loginData == null || loginData.get("ewmid") == null || loginData.get("qrcode") == null) {
+                             System.out.println("人脸登录返回字段缺失: " + loginResponse.getData());
+                             break;
+                         }
+                         ewmid = loginData.get("ewmid").toString();
+                         qrcode = loginData.get("qrcode").toString();
                          sleep(10000);//模拟 等待10秒
                          // 2 验证是否成
                          ApiResponse<Map<String, Object>> loginResponse2 = client.FaceLoginDppt(nsrsbh, username, password,sf,ewmlx,ewmid);

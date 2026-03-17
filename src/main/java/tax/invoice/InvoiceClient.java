@@ -247,6 +247,18 @@ public class InvoiceClient {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/hzfpkj", params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
+
+
+    /**
+     * 红字信息表同步
+     * @param params 开票参数
+     * @return 开票响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<Map<String, Object>> syncRedInfo(Map<String, Object> params) throws Exception {
+        HttpResponse<String> response = httpClient.post("/v5/enterprise/hzxxbtb", params, authorization);
+        return ApiResponse.fromJsonMap(response.body());
+    }
     
     /**
      * 切换电子税务局账号
@@ -255,7 +267,7 @@ public class InvoiceClient {
      * @throws Exception 请求异常
      */
     public ApiResponse<String> switchAccount(Map<String, Object> params) throws Exception {
-        HttpResponse<String> response = httpClient.post("/v5/enterprise/switchAccount", params, authorization);
+        HttpResponse<String> response = httpClient.post("/v5/enterprise/changeUser", params, authorization);
         return ApiResponse.fromJson(response.body());
     }
     
@@ -296,6 +308,11 @@ public class InvoiceClient {
      */
     public ApiResponse<Map<String, Object>> httpPost(String path,Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post(path, params, authorization);
+        return ApiResponse.fromJsonMap(response.body());
+    }
+
+    public ApiResponse<Map<String, Object>> httpPostJson(String path,Map<String, Object> params) throws Exception {
+        HttpResponse<String> response = httpClient.postJson(path, params, authorization);
         return ApiResponse.fromJsonMap(response.body());
     }
 

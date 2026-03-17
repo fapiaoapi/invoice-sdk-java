@@ -108,9 +108,14 @@ public class BatchInvoiceExample {
                      System.out.println(invoiceResponse.getCode()+ "开票结果: " + invoiceResponse.getMsg());
 
                      if (invoiceResponse.isSuccess()) {
-                         System.out.println("发票号码: " + invoiceResponse.getData().get("Fphm"));
-                         System.out.println("开票日期: " + invoiceResponse.getData().get("Kprq"));
-                         fphm = invoiceResponse.getData().get("Fphm").toString();
+                         Map<String, Object> invoiceData = invoiceResponse.getData();
+                         System.out.println("发票号码: " + (invoiceData == null ? null : invoiceData.get("Fphm")));
+                         System.out.println("开票日期: " + (invoiceData == null ? null : invoiceData.get("Kprq")));
+                         if (invoiceData == null || invoiceData.get("Fphm") == null) {
+                             System.out.println("开票成功但返回字段缺失: " + invoiceResponse.getData());
+                             break;
+                         }
+                         fphm = invoiceData.get("Fphm").toString();
                          sleep(10000);
                      }
                      //下载发票

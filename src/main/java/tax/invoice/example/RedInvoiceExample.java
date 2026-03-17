@@ -25,11 +25,11 @@ public class RedInvoiceExample {
             String appKey = "";
             String appSecret = "";
 
-            String nsrsbh = "91500112MADFAQ9J2P";//统一社会信用代码
-            String username = "19122840xxx";//手机号码（电子税务局）
+            String nsrsbh = "";//统一社会信用代码
+            String username = "";//手机号码（电子税务局）
 
-            String fphm = "25502000000038381718";
-            String kprq = "2025-04-13 13:35:27";
+            String fphm = "";
+            String kprq = "";
 
             String token = "";
 
@@ -45,20 +45,25 @@ public class RedInvoiceExample {
                 }
             }
 
-            // 发票红冲
-            // 1 数电申请红字前查蓝票信息接口
+            /*
+             * 1. 数电申请红字前查蓝票信息接口
+             * @link https://fa-piao.com/doc.html#api8?source=github
+             */
             Map<String, Object> queryInvoiceParams = new HashMap<>();
             queryInvoiceParams.put("nsrsbh", nsrsbh);
             queryInvoiceParams.put("fphm", fphm);
             queryInvoiceParams.put("username", username);
-            queryInvoiceParams.put("kprq", kprq);
+//            queryInvoiceParams.put("kprq", kprq);
             queryInvoiceParams.put("sqyy", "2");
             ApiResponse<Map<String, Object>> queryInvoiceResponse = client.queryBlueTicketInfo(queryInvoiceParams);
 
             if (queryInvoiceResponse.isSuccess()) {
                 System.out.println("1 可以申请红字");
                 sleep(2000);
-                // 2 申请红字信息表
+                /*
+                 * 2. 申请红字信息表
+                 * @link https://fa-piao.com/doc.html#api9?source=github
+                 */
                 Map<String, Object> applyRedParams = new HashMap<>();
                 applyRedParams.put("xhdwsbh", nsrsbh);
                 applyRedParams.put("yfphm", fphm);
@@ -70,12 +75,20 @@ public class RedInvoiceExample {
                 if (applyRedResponse.isSuccess()) {
                     System.out.println("2 申请红字信息表" );
                     sleep(2000);
-                    // 3 数电票负数开具
+                    /*
+                     * 3. 开具红字发票
+                     * @link https://fa-piao.com/doc.html#api10?source=github
+                     */
                     Map<String, Object> redInvoiceParams = new HashMap<>();
                     redInvoiceParams.put("fpqqlsh", "red" + fphm);
                     redInvoiceParams.put("username", username);
                     redInvoiceParams.put("xhdwsbh", nsrsbh);
-                    redInvoiceParams.put("tzdbh", applyRedResponse.getData().get("xxbbh").toString());
+                    Map<String, Object> applyRedData = applyRedResponse.getData();
+                    if (applyRedData == null || applyRedData.get("xxbbh") == null) {
+                        System.out.println("红字信息表返回字段缺失: " + applyRedResponse.getData());
+                        return;
+                    }
+                    redInvoiceParams.put("tzdbh", applyRedData.get("xxbbh").toString());
                     redInvoiceParams.put("yfphm", fphm);
                     ApiResponse<Map<String, Object>> redInvoiceResponse = client.redTicket(redInvoiceParams);
                     if (redInvoiceResponse.isSuccess()) {
