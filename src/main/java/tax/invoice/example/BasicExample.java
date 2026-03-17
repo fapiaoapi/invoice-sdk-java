@@ -57,7 +57,7 @@ public class BasicExample {
             InvoiceClient client = new InvoiceClient(appKey, appSecret);
 
             // 从Redis获取Token
-            String redisKey = nsrsbh + "@TOKEN";
+            String redisKey = nsrsbh +"@"+username+ "@TOKEN";
             token = redis.get(redisKey);
             if (token != null && !token.isEmpty()) {
                 client.setAuthorization(token);

@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.11'
+implementation 'io.github.fapiaoapi:invoice:1.0.12'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
@@ -143,7 +143,7 @@ public class BasicExample {
             InvoiceClient client = new InvoiceClient(appKey, appSecret);
 
             // 从Redis获取Token
-            String redisKey = nsrsbh + "@TOKEN";
+            String redisKey = nsrsbh +"@"+username+ "@TOKEN";
             token = redis.get(redisKey);
             if (token != null && !token.isEmpty()) {
                 client.setAuthorization(token);
