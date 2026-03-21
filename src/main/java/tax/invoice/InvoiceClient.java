@@ -52,7 +52,7 @@ public class InvoiceClient {
     /**
      * 获取授权
      * @param nsrsbh 纳税人识别号
-     * @param type 类型 5 管理
+     * @param type 类型 6基础 7标准
      * @return 授权响应
      * @throws Exception 请求异常
      */
@@ -60,6 +60,29 @@ public class InvoiceClient {
         Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         formData.put("type", type);
+        HttpResponse<String> response = httpClient.post("/v5/enterprise/authorization", formData, null);
+        ApiResponse<AuthorizationResponse> apiResponse = ApiResponse.fromJson(
+                response.body(), AuthorizationResponse.class);
+
+        if (apiResponse.isSuccess() && apiResponse.getData() != null) {
+            this.authorization = apiResponse.getData().getToken();
+        }
+
+        return apiResponse;
+    }
+    /**
+     * 获取授权
+     * @param nsrsbh 纳税人识别号
+     * @param type 类型 6基础 7标准
+     * @return 授权响应
+     * @throws Exception 请求异常
+     */
+    public ApiResponse<AuthorizationResponse> getAuthorization(String nsrsbh,String type,String username,String password) throws Exception {
+        Map<String, Object> formData = new HashMap<>();
+        formData.put("nsrsbh", nsrsbh);
+        formData.put("type", type);
+        formData.put("username", username);
+        formData.put("password", password);
         HttpResponse<String> response = httpClient.post("/v5/enterprise/authorization", formData, null);
         ApiResponse<AuthorizationResponse> apiResponse = ApiResponse.fromJson(
                 response.body(), AuthorizationResponse.class);

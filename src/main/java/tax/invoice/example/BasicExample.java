@@ -57,7 +57,7 @@ public class BasicExample {
             InvoiceClient client = new InvoiceClient(appKey, appSecret);
 
             // 从Redis获取Token
-            String redisKey = nsrsbh +"@"+username+ "@TOKEN";
+            String redisKey = nsrsbh + "@"+username+ "@TOKEN";
             token = redis.get(redisKey);
             if (token != null && !token.isEmpty()) {
                 client.setAuthorization(token);
@@ -69,6 +69,7 @@ public class BasicExample {
                  * @see https://fa-piao.com/doc.html#api1?source=github
                  */
                 ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization(nsrsbh,type);
+//                ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization(nsrsbh,type,username,password);
                 if (authResponse.isSuccess()) {
                     token = authResponse.getData().getToken();
                     client.setAuthorization(token);

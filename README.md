@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.12'
+implementation 'io.github.fapiaoapi:invoice:1.0.13'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
