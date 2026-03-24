@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.13</version>
+    <version>1.0.15</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.13'
+implementation 'io.github.fapiaoapi:invoice:1.0.15'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
@@ -352,12 +352,6 @@ public class BasicExample {
                         // token过期 重新获取并缓存token
                         System.out.println("授权失败:" + invoiceResponse.getMsg());
                         // 重新获取token的逻辑
-                        break;
-
-                    case 503:
-                        // 服务器繁忙 重新发起请求即可
-                        System.out.println("服务器繁忙:" + invoiceResponse.getMsg());
-                        // 重新发起请求的逻辑
                         break;
                     default:
 //                            System.out.println("参数:" + invoiceParams);
