@@ -259,12 +259,6 @@ public class BasicExample {
                             System.out.println("授权失败:" + invoiceResponse.getMsg());
                             // 重新获取token的逻辑
                             break;
-
-                        case 503:
-                            // 服务器繁忙 重新发起请求即可
-                            System.out.println("服务器繁忙:" + invoiceResponse.getMsg());
-                            // 重新发起请求的逻辑
-                            break;
                         default:
 //                            System.out.println("参数:" + invoiceParams);
                             System.out.println(invoiceResponse.getCode() + " " + invoiceResponse.getMsg());

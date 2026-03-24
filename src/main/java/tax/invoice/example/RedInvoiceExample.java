@@ -38,7 +38,10 @@ public class RedInvoiceExample {
             if (token != null && !token.isEmpty()) {
                 client.setAuthorization(token);
             } else {
-                // 获取授权
+                /*
+                 * 获取授权Token文档
+                 * @see https://fa-piao.com/doc.html#api1?source=github
+                 */
                 ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization(nsrsbh);
                 if (authResponse.isSuccess()) {
                     System.out.println("授权成功，Token: " + authResponse.getData().getToken());
