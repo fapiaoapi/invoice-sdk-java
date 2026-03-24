@@ -50,7 +50,9 @@ implementation 'io.github.fapiaoapi:invoice:1.0.13'
 
 
 [java8-java16开发票demo](https://github.com/fapiaoapi/invoice/blob/master/BasicExample.java "java8-java16开发票demo")
+
 [java8-java16红冲发票demo](https://github.com/fapiaoapi/invoice/blob/master/RedInvoiceExample.java "java8-java16红冲发票demo")
+
 [java8-java16发票税额demo](https://github.com/fapiaoapi/invoice/blob/master/TaxExample.java "java8-java16发票税额demo")
 
 ---
