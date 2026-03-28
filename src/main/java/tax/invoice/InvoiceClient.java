@@ -104,7 +104,7 @@ public class InvoiceClient {
      * @return 登录响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<String> loginDppt(String nsrsbh, String username, String password, String sms) throws Exception {
+    public ApiResponse<Map<String, Object>> loginDppt(String nsrsbh, String username, String password, String sms) throws Exception {
         Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         formData.put("username", username);
@@ -115,7 +115,7 @@ public class InvoiceClient {
         }
         
         HttpResponse<String> response = httpClient.post("/v5/enterprise/loginDppt", formData, authorization);
-        return ApiResponse.fromJson(response.body());
+        return ApiResponse.fromJsonMap(response.body());
     }
 
     /**
