@@ -202,7 +202,7 @@ public class InvoiceClient {
      * @return 认证状态响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<String> queryFaceAuthState(String nsrsbh, String username) throws Exception {
+    public ApiResponse<Map<String, Object>>  queryFaceAuthState(String nsrsbh, String username) throws Exception {
         Map<String, Object> formData = new HashMap<>();
         formData.put("nsrsbh", nsrsbh);
         
@@ -211,7 +211,7 @@ public class InvoiceClient {
         }
         
         HttpResponse<String> response = httpClient.post("/v5/enterprise/queryFaceAuthState", formData, authorization);
-        return ApiResponse.fromJson(response.body());
+        return ApiResponse.fromJsonMap(response.body());
     }
     
     /**
@@ -289,9 +289,9 @@ public class InvoiceClient {
      * @return 切换响应
      * @throws Exception 请求异常
      */
-    public ApiResponse<String> switchAccount(Map<String, Object> params) throws Exception {
+    public ApiResponse<Map<String, Object>> switchAccount(Map<String, Object> params) throws Exception {
         HttpResponse<String> response = httpClient.post("/v5/enterprise/changeUser", params, authorization);
-        return ApiResponse.fromJson(response.body());
+        return ApiResponse.fromJsonMap(response.body());
     }
     
     /**
