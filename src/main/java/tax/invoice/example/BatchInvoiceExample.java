@@ -47,7 +47,7 @@ public class BatchInvoiceExample {
              }
 
              // 获取认证状态
-             ApiResponse<String> statusResponse = client.queryFaceAuthState(nsrsbh, username);
+            ApiResponse<Map<String, Object>> statusResponse = client.queryFaceAuthState(nsrsbh, username);
              switch (statusResponse.getCode()) {
                  case 200:
                      System.out.println("认证状态: 无需认证");
