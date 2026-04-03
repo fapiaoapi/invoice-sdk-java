@@ -184,27 +184,25 @@ public class InvoiceExample {
                      /*
                       * @see https://fa-piao.com/doc.html#api2?source=github
                       */
-//                     ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password, "");
-//                     if (loginResponse.getCode() == 200) {
-//                         System.out.println(loginResponse.getMsg());
-//                         System.out.println("请" + username + "接收验证码");
-//                         try {
-//                             sleep(60000); // 等待60秒
-//                         } catch (InterruptedException ex) {
-//                             Thread.currentThread().interrupt();
-//                         }
-//                     }
-//                     // 2. 输入验证码
-//                     /*
-//                      * @see https://fa-piao.com/doc.html#api2?source=github
-//                      */
-//                     System.out.println("请输入验证码");
-//                     String smsCode = ""; // 这里应该获取用户输入的验证码
-//                     ApiResponse<Map<String, Object>> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
-//                     if (loginResponse2.getCode() == 200) {
-//                         System.out.println(loginResponse2.getData());
-//                         System.out.println("验证成功");
-//                     }
+                     ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password, "");
+                     if (loginResponse.getCode() == 200) {
+                         System.out.println(loginResponse.getMsg());
+                         System.out.println("请" + username + "接收验证码");
+
+                         // 2. 输入验证码
+                         /*
+                          * @see https://fa-piao.com/doc.html#api2?source=github
+                          */
+                         System.out.println("请输入验证码");
+                         String smsCode = ""; // 这里应该获取用户输入的验证码
+                         ApiResponse<Map<String, Object>> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
+                         if (loginResponse2.getCode() == 200) {
+                             System.out.println(loginResponse2.getData());
+                             System.out.println("验证成功");
+                         }
+
+                     }
+
                      break;
 
                  case 430:
