@@ -98,7 +98,6 @@ public class ApiResponse<T> {
      */
     public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception {
         try {
-            System.out.println(json);
             JsonNode root = objectMapper.readTree(json);
             ApiResponse<Map<String, Object>> response = new ApiResponse<>();
             response.setCode(root.path("code").asInt(-1));
