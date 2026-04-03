@@ -295,9 +295,9 @@ public class BasicExample {
         invoiceParams.put("fpqqlsh", appKey + System.currentTimeMillis());
         invoiceParams.put("ghdwmc", "张四");
         // invoiceParams.put("ghdwsbh", "914208XXXXXXX");
-        invoiceParams.put("hjje", 978.9);
+        invoiceParams.put("hjje", 9.9);
         invoiceParams.put("hjse", 0.1);
-        invoiceParams.put("jshj", 1100);
+        invoiceParams.put("jshj", 10);
         invoiceParams.put("kplx", 0);
         invoiceParams.put("username", username);
         invoiceParams.put("xhdwdzdh", xhdwdzdh);
