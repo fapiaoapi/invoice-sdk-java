@@ -2,6 +2,7 @@ package tax.invoice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -95,7 +96,14 @@ public class ApiResponse<T> {
      */
     public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception {
         try {
-            return objectMapper.readValue(json, new TypeReference<ApiResponse<Map<String, Object>>>() {});
+            JsonNode root = objectMapper.readTree(json);
+            ApiResponse<Map<String, Object>> response = new ApiResponse<>();
+            response.setCode(root.path("code").asInt(-1));
+            response.setMsg(root.path("msg").asText(""));
+            response.setTotal(root.path("total").asInt(0));
+            JsonNode dataNode = root.get("data");
+            response.setData(parseMapDataNode(dataNode));
+            return response;
         } catch (Exception e) {
             return buildErrorResponse(extractErrorMessage(json));
         }
@@ -104,10 +112,57 @@ public class ApiResponse<T> {
 
     public static ApiResponse<List<Map<String, Object>>> fromJsonListMap(String json) throws Exception {
         try {
-            return objectMapper.readValue(json, new TypeReference<ApiResponse<List<Map<String, Object>>>>() {});
+            JsonNode root = objectMapper.readTree(json);
+            ApiResponse<List<Map<String, Object>>> response = new ApiResponse<>();
+            response.setCode(root.path("code").asInt(-1));
+            response.setMsg(root.path("msg").asText(""));
+            response.setTotal(root.path("total").asInt(0));
+            JsonNode dataNode = root.get("data");
+            response.setData(parseListMapDataNode(dataNode));
+            return response;
         } catch (Exception e) {
             return buildErrorResponse(extractErrorMessage(json));
         }
+    }
+
+    private static Map<String, Object> parseMapDataNode(JsonNode dataNode) throws Exception {
+        if (dataNode == null || dataNode.isNull()) {
+            return null;
+        }
+        if (dataNode.isObject()) {
+            return objectMapper.convertValue(dataNode, new TypeReference<Map<String, Object>>() {});
+        }
+        if (dataNode.isTextual()) {
+            String text = dataNode.asText();
+            if (text == null || text.isBlank()) {
+                return null;
+            }
+            JsonNode parsed = objectMapper.readTree(text);
+            if (parsed.isObject()) {
+                return objectMapper.convertValue(parsed, new TypeReference<Map<String, Object>>() {});
+            }
+        }
+        return null;
+    }
+
+    private static List<Map<String, Object>> parseListMapDataNode(JsonNode dataNode) throws Exception {
+        if (dataNode == null || dataNode.isNull()) {
+            return null;
+        }
+        if (dataNode.isArray()) {
+            return objectMapper.convertValue(dataNode, new TypeReference<List<Map<String, Object>>>() {});
+        }
+        if (dataNode.isTextual()) {
+            String text = dataNode.asText();
+            if (text == null || text.isBlank()) {
+                return null;
+            }
+            JsonNode parsed = objectMapper.readTree(text);
+            if (parsed.isArray()) {
+                return objectMapper.convertValue(parsed, new TypeReference<List<Map<String, Object>>>() {});
+            }
+        }
+        return null;
     }
 
     private static String extractErrorMessage(String json) {

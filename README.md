@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.17</version>
+    <version>1.0.18</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.17'
+implementation 'io.github.fapiaoapi:invoice:1.0.18'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
@@ -391,5 +391,6 @@ public class BasicExample {
 
 [发票红冲demo](src/main/java/tax/invoice/example/RedInvoiceExample.java "发票红冲demo")
 [发票税额计算demo](src/main/java/tax/invoice/example/TaxExample.java "发票税额计算demo")
+[先验证后开发票demo](src/main/java/tax/invoice/example/InvoiceExample.java "先验证后开票发票demo")
 
 
