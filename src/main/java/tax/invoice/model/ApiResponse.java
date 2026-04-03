@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,6 +98,7 @@ public class ApiResponse<T> {
      */
     public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception {
         try {
+            System.out.println(json);
             JsonNode root = objectMapper.readTree(json);
             ApiResponse<Map<String, Object>> response = new ApiResponse<>();
             response.setCode(root.path("code").asInt(-1));
@@ -132,17 +135,40 @@ public class ApiResponse<T> {
         if (dataNode.isObject()) {
             return objectMapper.convertValue(dataNode, new TypeReference<Map<String, Object>>() {});
         }
+        if (dataNode.isArray()) {
+            Map<String, Object> wrapped = new LinkedHashMap<>();
+            wrapped.put("list", parseListMapFromArrayNode(dataNode));
+            return wrapped;
+        }
         if (dataNode.isTextual()) {
             String text = dataNode.asText();
             if (text == null || text.isBlank()) {
                 return null;
             }
-            JsonNode parsed = objectMapper.readTree(text);
-            if (parsed.isObject()) {
-                return objectMapper.convertValue(parsed, new TypeReference<Map<String, Object>>() {});
+            JsonNode parsed = tryReadJsonNode(text);
+            if (parsed != null) {
+                if (parsed.isObject()) {
+                    return objectMapper.convertValue(parsed, new TypeReference<Map<String, Object>>() {});
+                }
+                if (parsed.isArray()) {
+                    Map<String, Object> wrapped = new LinkedHashMap<>();
+                    wrapped.put("list", parseListMapFromArrayNode(parsed));
+                    return wrapped;
+                }
+                if (parsed.isNull()) {
+                    return null;
+                }
+                Map<String, Object> wrapped = new LinkedHashMap<>();
+                wrapped.put("value", objectMapper.convertValue(parsed, Object.class));
+                return wrapped;
             }
+            Map<String, Object> wrapped = new LinkedHashMap<>();
+            wrapped.put("value", text);
+            return wrapped;
         }
-        return null;
+        Map<String, Object> wrapped = new LinkedHashMap<>();
+        wrapped.put("value", objectMapper.convertValue(dataNode, Object.class));
+        return wrapped;
     }
 
     private static List<Map<String, Object>> parseListMapDataNode(JsonNode dataNode) throws Exception {
@@ -150,19 +176,73 @@ public class ApiResponse<T> {
             return null;
         }
         if (dataNode.isArray()) {
-            return objectMapper.convertValue(dataNode, new TypeReference<List<Map<String, Object>>>() {});
+            return parseListMapFromArrayNode(dataNode);
+        }
+        if (dataNode.isObject()) {
+            List<Map<String, Object>> single = new ArrayList<>();
+            single.add(objectMapper.convertValue(dataNode, new TypeReference<Map<String, Object>>() {}));
+            return single;
         }
         if (dataNode.isTextual()) {
             String text = dataNode.asText();
             if (text == null || text.isBlank()) {
                 return null;
             }
-            JsonNode parsed = objectMapper.readTree(text);
-            if (parsed.isArray()) {
-                return objectMapper.convertValue(parsed, new TypeReference<List<Map<String, Object>>>() {});
+            JsonNode parsed = tryReadJsonNode(text);
+            if (parsed != null) {
+                if (parsed.isArray()) {
+                    return parseListMapFromArrayNode(parsed);
+                }
+                if (parsed.isObject()) {
+                    List<Map<String, Object>> single = new ArrayList<>();
+                    single.add(objectMapper.convertValue(parsed, new TypeReference<Map<String, Object>>() {}));
+                    return single;
+                }
+                if (parsed.isNull()) {
+                    return null;
+                }
+                List<Map<String, Object>> single = new ArrayList<>();
+                Map<String, Object> wrapped = new LinkedHashMap<>();
+                wrapped.put("value", objectMapper.convertValue(parsed, Object.class));
+                single.add(wrapped);
+                return single;
             }
+            List<Map<String, Object>> single = new ArrayList<>();
+            Map<String, Object> wrapped = new LinkedHashMap<>();
+            wrapped.put("value", text);
+            single.add(wrapped);
+            return single;
         }
-        return null;
+        List<Map<String, Object>> single = new ArrayList<>();
+        Map<String, Object> wrapped = new LinkedHashMap<>();
+        wrapped.put("value", objectMapper.convertValue(dataNode, Object.class));
+        single.add(wrapped);
+        return single;
+    }
+
+    private static List<Map<String, Object>> parseListMapFromArrayNode(JsonNode arrayNode) throws Exception {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (JsonNode item : arrayNode) {
+            if (item == null || item.isNull()) {
+                continue;
+            }
+            if (item.isObject()) {
+                result.add(objectMapper.convertValue(item, new TypeReference<Map<String, Object>>() {}));
+                continue;
+            }
+            Map<String, Object> wrapped = new LinkedHashMap<>();
+            wrapped.put("value", objectMapper.convertValue(item, Object.class));
+            result.add(wrapped);
+        }
+        return result;
+    }
+
+    private static JsonNode tryReadJsonNode(String text) {
+        try {
+            return objectMapper.readTree(text);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private static String extractErrorMessage(String json) {

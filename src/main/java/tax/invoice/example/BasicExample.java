@@ -19,6 +19,8 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
+import static java.lang.Thread.sleep;
+
 
 public class BasicExample {
     public static void main(String[] args) {
@@ -30,10 +32,10 @@ public class BasicExample {
             String appKey = "";
             String appSecret = "";
 
-            String nsrsbh = "91500112MADFAXXXX";//统一社会信用代码
-            String title = "XXXX科技有限公司";//名称（营业执照）
-            String username = "1325580XXXX";//手机号码（电子税务局）
-            String password = "123456XXXX";//个人用户密码（电子税务局）
+            String nsrsbh = "";//统一社会信用代码
+            String title = "";//名称（营业执照）
+            String username = "";//手机号码（电子税务局）
+            String password = "";//个人用户密码（电子税务局）
             String sf = "01";//身份（电子税务局）
             String fphm = "";
             String kprq = "";
@@ -99,9 +101,9 @@ public class BasicExample {
                     invoiceParams.put("fpqqlsh", appKey + System.currentTimeMillis());
                     invoiceParams.put("ghdwmc", "个人");
 //                    invoiceParams.put("ghdwsbh", "914208XXXXXXX");
-                    invoiceParams.put("hjje", 396.04);
+                    invoiceParams.put("hjje", 39666.04);
                     invoiceParams.put("hjse", 3.96);
-                    invoiceParams.put("jshj", 400);
+                    invoiceParams.put("jshj", 4000);
                     invoiceParams.put("kplx", 0);
                     invoiceParams.put("username", username);
                     invoiceParams.put("xhdwdzdh", "重庆市渝北区龙溪街道丽园路2号XXXX 1325580XXXX");
@@ -138,6 +140,7 @@ public class BasicExample {
                  *
                  */
                 ApiResponse<Map<String, Object>> invoiceResponse = client.blueTicket(invoiceParams);
+                System.out.println("开具发票结果: " + invoiceResponse.getCode());
                 switch (invoiceResponse.getCode()){
                         case 200:
                             Map<String, Object> invoiceData = invoiceResponse.getData();
@@ -151,6 +154,11 @@ public class BasicExample {
                             System.out.println("开票日期: " + kprq);
 
                             //三 下载发票
+                            /*
+                             * 获取销项数电版式文件
+                             * @see https://fa-piao.com/doc.html#api7?source=github
+                             *
+                             */
                             Map<String, Object> pdfParams = new HashMap<>();
                             pdfParams.put("downflag", "4");
                             pdfParams.put("nsrsbh", nsrsbh);
@@ -175,27 +183,27 @@ public class BasicExample {
                             /*
                              * @see https://fa-piao.com/doc.html#api2?source=github
                              */
-                            // ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password, "");
-                            // if (loginResponse.getCode() == 200) {
-                            //     System.out.println(loginResponse.getMsg());
-                            //     System.out.println("请" + username + "接收验证码");
-                            //     try {
-                            //         sleep(60000); // 等待60秒
-                            //     } catch (InterruptedException ex) {
-                            //         Thread.currentThread().interrupt();
-                            //     }
-                            // }
+                             ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password, "");
+                             if (loginResponse.getCode() == 200) {
+                                 System.out.println(loginResponse.getMsg());
+                                 System.out.println("请" + username + "接收验证码");
+                                 try {
+                                     sleep(60000); // 等待60秒
+                                 } catch (InterruptedException ex) {
+                                     Thread.currentThread().interrupt();
+                                 }
+                             }
                             // 2. 输入验证码
                             /*
                              * @see https://fa-piao.com/doc.html#api2?source=github
                              */
-                            // System.out.println("请输入验证码");
-                            // String smsCode = ""; // 这里应该获取用户输入的验证码
-                            // ApiResponse<Map<String, Object>> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
-                            // if (loginResponse2.getCode() == 200) {
-                            //     System.out.println(loginResponse2.getData());
-                            //     System.out.println("验证成功");
-                            // }
+                             System.out.println("请输入验证码");
+                             String smsCode = ""; // 这里应该获取用户输入的验证码
+                             ApiResponse<Map<String, Object>> loginResponse2 = client.loginDppt(nsrsbh, username, password, smsCode);
+                             if (loginResponse2.getCode() == 200) {
+                                 System.out.println(loginResponse2.getData());
+                                 System.out.println("验证成功");
+                             }
                             break;
 
                         case 430:
@@ -208,51 +216,51 @@ public class BasicExample {
                             /*
                              * @see https://fa-piao.com/doc.html#api3?source=github
                              */
-//                             ApiResponse<Map<String, Object>> qrCodeResponse = client.getFaceImg(nsrsbh, username, "1");
-//                             Map<String, Object> qrData = qrCodeResponse.getData();
-//                             if (qrData == null) {
-//                                 System.out.println("人脸二维码返回为空: " + qrCodeResponse.getMsg());
-//                                 break;
-//                             }
-//                             Object ewmlyObj = qrData.get("ewmly");
-//                             String ewmly = ewmlyObj == null ? "" : ewmlyObj.toString();
-//                             System.out.println("swj".equals(ewmly) ? "请使用税务局app扫码" : "个人所得税app扫码");
-//                             Object ewmObj = qrData.get("ewm");
-//                             if (ewmObj != null && ewmObj.toString().length() < 500) {
-//                                 // 需要引入二维码生成库来构建二维码
-//                                 /*
-//                                    <dependency>
-//                                        <groupId>com.google.zxing</groupId>
-//                                        <artifactId>core</artifactId>
-//                                        <version>3.5.3</version>
-//                                    </dependency>
-//                                    <dependency>
-//                                        <groupId>com.google.zxing</groupId>
-//                                        <artifactId>javase</artifactId>
-//                                        <version>3.5.3</version>
-//                                    </dependency>
-//                                  */
-//                                String base64 = toBase64((String) ewmObj,300);
-//                                qrData.put("ewm", base64);
-//                                 System.out.println("data:image/png;base64," + base64);
-//                                 // String base64Uri = "data:image/png;base64," + base64;
-//                                 // 前端使用示例: <img src="base64Uri" />
-//                             }
+                             ApiResponse<Map<String, Object>> qrCodeResponse = client.getFaceImg(nsrsbh, username, "1");
+                             Map<String, Object> qrData = qrCodeResponse.getData();
+                             if (qrData == null) {
+                                 System.out.println("人脸二维码返回为空: " + qrCodeResponse.getMsg());
+                                 break;
+                             }
+                             Object ewmlyObj = qrData.get("ewmly");
+                             String ewmly = ewmlyObj == null ? "" : ewmlyObj.toString();
+                             System.out.println("swj".equals(ewmly) ? "请使用税务局app扫码" : "个人所得税app扫码");
+                             Object ewmObj = qrData.get("ewm");
+                             if (ewmObj != null && ewmObj.toString().length() < 500) {
+                                 // 需要引入二维码生成库来构建二维码
+                                 /*
+                                    <dependency>
+                                        <groupId>com.google.zxing</groupId>
+                                        <artifactId>core</artifactId>
+                                        <version>3.5.3</version>
+                                    </dependency>
+                                    <dependency>
+                                        <groupId>com.google.zxing</groupId>
+                                        <artifactId>javase</artifactId>
+                                        <version>3.5.3</version>
+                                    </dependency>
+                                  */
+                                String base64 = toBase64((String) ewmObj,300);
+                                qrData.put("ewm", base64);
+                                 System.out.println("data:image/png;base64," + base64);
+                                 // String base64Uri = "data:image/png;base64," + base64;
+                                 // 前端使用示例: <img src="base64Uri" />
+                             }
 
                             // 2. 认证完成后获取人脸二维码认证状态
                             /*
                              * @see https://fa-piao.com/doc.html#api4?source=github
                              */
-                            // String rzid = qrCodeResponse.getData().get("rzid").toString();
-                            // ApiResponse<Map<String, Object>> faceStatusResponse = client.getFaceState(nsrsbh, rzid, username, "1");
-                            // System.out.println("code: " + faceStatusResponse.getCode());
-                            // System.out.println("data: " + faceStatusResponse.getData());
-                            //
-                            // if (faceStatusResponse.getData() != null) {
-                            //     String slzt = faceStatusResponse.getData().get("slzt").toString();
-                            //     String status = "1".equals(slzt) ? "未认证" : ("2".equals(slzt) ? "成功" : "二维码过期");
-                            //     System.out.println("认证状态: " + status);
-                            // }
+                             String rzid = qrCodeResponse.getData().get("rzid").toString();
+                             ApiResponse<Map<String, Object>> faceStatusResponse = client.getFaceState(nsrsbh, rzid, username, "1");
+                             System.out.println("code: " + faceStatusResponse.getCode());
+                             System.out.println("data: " + faceStatusResponse.getData());
+
+                             if (faceStatusResponse.getData() != null) {
+                                 String slzt = faceStatusResponse.getData().get("slzt").toString();
+                                 String status = "1".equals(slzt) ? "未认证" : ("2".equals(slzt) ? "成功" : "二维码过期");
+                                 System.out.println("认证状态: " + status);
+                             }
                             break;
                         case 401:
                             // token过期 重新获取并缓存token
