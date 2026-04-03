@@ -324,54 +324,54 @@ public class InvoicePlusExample {
 
     public static void printQR(String content) {
         try {
-            // 1. 核心策略：根据内容长度动态调整容错率，以控制尺寸
-            // 目标：尽量让二维码保持在 33x33 (版本2) 或 41x41 (版本3) 以内
-            ErrorCorrectionLevel ecLevel = ErrorCorrectionLevel.M; // 默认中等容错
-
-            // 如果内容超过 50 个字符，强制降低容错率以减小体积
-            if (content.length() > 50) {
-                ecLevel = ErrorCorrectionLevel.L;
-            }
+            // 1. 计算容错率
+            ErrorCorrectionLevel ecLevel = content.length() > 50 ? ErrorCorrectionLevel.L : ErrorCorrectionLevel.M;
 
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.ERROR_CORRECTION, ecLevel);
+            // 默认边距设为1，保证紧凑
+            hints.put(EncodeHintType.MARGIN, 1);
 
-            // 2. 生成矩阵
-            // 我们设定一个基准尺寸 33 (版本2)。
-            // 如果内容很少，ZXing 会自动缩到 21。
-            // 如果内容很多，它会变大，但 L 级容错能压制它的膨胀。
-            int baseSize = 10;
-            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, baseSize, baseSize, hints);
+            // 2. 【关键修改】尺寸缩小1倍
+            // 将 requestedWidth/Height 从 1 改为 2。
+            // 这会让 ZXing 生成更紧凑的矩阵，而不是强制最小尺寸（最小尺寸通常模块很大）。
+            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 2, 2, hints);
 
             int width = matrix.getWidth();
 
-            // 3. 警告：如果尺寸实在太大（超过 55），提示用户
+            // 3. 警告信息
             if (width > 55) {
                 System.out.println("⚠️ 警告：内容过长，二维码尺寸过大(" + width + "x" + width + ")，可能无法识别。建议使用短链接！");
             }
 
-            // 4. 打印优化：使用半块字符 (▀▄) 修复长宽比
-            // 这是让二维码能被识别的关键！
-            System.out.println("👇 请扫描下方二维码 (内容长度: " + content.length() + ") 👇");
+//            System.out.println("👇 请扫描下方二维码 (内容长度: " + content.length() + ") 👇");
 
+            // 4. 【关键修改】统一渲染逻辑，强制正方形
+            // 使用 Unicode 块字符 (▀▄) 可以在一行内表示两个像素的高度，
+            // 这样既保证了输出是正方形（避免终端行高导致的变形），又保持了高分辨率。
             for (int y = 0; y < width; y += 2) {
                 StringBuilder line = new StringBuilder();
-                // 左右各加两个空格作为静区，方便定位
-                line.append("  ");
                 for (int x = 0; x < width; x++) {
+                    // 获取当前行 (Top) 和下一行 (Bottom) 的像素状态
                     boolean isTop = matrix.get(x, y);
-                    boolean isBottom = (y + 1 < width) && matrix.get(x, y + 1);
+                    boolean isBottom = false;
 
-                    if (isTop && isBottom) line.append("█");
-                    else if (isTop && !isBottom) line.append("▀");
-                    else if (!isTop && isBottom) line.append("▄");
-                    else line.append(" ");
+                    // 防止数组越界（当高度为奇数时）
+                    if (y + 1 < width) {
+                        isBottom = matrix.get(x, y + 1);
+                    }
+
+                    // 根据上下两个像素的状态选择字符
+                    if (isTop && isBottom)      line.append("██"); // 上下都是黑
+                    else if (isTop)             line.append("▀▀"); // 上黑下白
+                    else if (isBottom)          line.append("▄▄"); // 上白下黑
+                    else                        line.append("  "); // 上下都是白
                 }
-                line.append("  "); // 右侧静区
                 System.out.println(line);
             }
-            System.out.println("👆 扫描结束 👆");
+
+//            System.out.println("👆 扫描结束 👆");
 
         } catch (WriterException e) {
             e.printStackTrace();
