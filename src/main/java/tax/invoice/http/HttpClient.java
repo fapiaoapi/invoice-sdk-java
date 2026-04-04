@@ -19,9 +19,15 @@ import java.nio.charset.StandardCharsets;
 public class HttpClient {
     private final InvoiceConfig config;
     private final java.net.http.HttpClient client;
+    private final boolean debug;
     
     public HttpClient(InvoiceConfig config) {
+        this(config, false);
+    }
+
+    public HttpClient(InvoiceConfig config, boolean debug) {
         this.config = config;
+        this.debug = debug;
         this.client = java.net.http.HttpClient.newBuilder()
                 .version(java.net.http.HttpClient.Version.HTTP_2)
                 .build();
@@ -56,8 +62,11 @@ public class HttpClient {
         )
                 .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
                 .build();
-        
-        return client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+        logRequest(method, request.uri().toString(), request.headers().map(), formData);
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        logResponse(response);
+        return response;
     }
 
     /**
@@ -91,7 +100,10 @@ public class HttpClient {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
                 .build();
 
-        return client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        logRequest(method, request.uri().toString(), request.headers().map(), formData);
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        logResponse(response);
+        return response;
     }
 
     /**
@@ -135,8 +147,11 @@ public class HttpClient {
         }
         
         HttpRequest request = requestBuilder.GET().build();
-        
-        return client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)); // 指定UTF-8编码
+
+        logRequest(method, request.uri().toString(), request.headers().map(), queryParams);
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        logResponse(response);
+        return response;
     }
 
     
@@ -280,5 +295,25 @@ public class HttpClient {
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
                 .replace("\t", "\\t");
+    }
+
+    private void logRequest(String method, String url, Map<String, java.util.List<String>> headers, Object params) {
+        if (!debug) {
+            return;
+        }
+        System.out.println("[InvoiceSDK][DEBUG] REQUEST");
+        System.out.println("URL: " + url);
+        System.out.println("METHOD: " + method);
+        System.out.println("HEADERS: " + headers);
+        System.out.println("PARAMS: " + String.valueOf(params));
+    }
+
+    private void logResponse(HttpResponse<String> response) {
+        if (!debug) {
+            return;
+        }
+        System.out.println("[InvoiceSDK][DEBUG] RESPONSE");
+        System.out.println("STATUS: " + response.statusCode());
+        System.out.println("BODY: " + response.body());
     }
 }

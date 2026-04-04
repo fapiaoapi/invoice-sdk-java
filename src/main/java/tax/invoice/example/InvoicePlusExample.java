@@ -33,12 +33,12 @@ public class InvoicePlusExample {
     public static String type = "7";// 6 基础 7标准
     public static String xhdwdzdh = "重庆市渝北区龙溪街道丽园路2号XXXX 1325580XXXX"; // 地址 电话
     public static String xhdwyhzh = "工商银行XXXX 15451211XXXX";// 开户行 银行账号
-    public static String fphm = "";
-    public static String kprq = "";
+
     public static String token = "";
+    public static boolean debug = true; // 是否打印日志
 
     // 创建客户端
-    public static InvoiceClient client = new InvoiceClient(appKey, appSecret);
+    public static InvoiceClient client = new InvoiceClient(appKey, appSecret,debug);
 
     // redis
     public static Jedis redisClient = new Jedis("127.0.0.1", 6379);
@@ -54,7 +54,6 @@ public class InvoicePlusExample {
             System.out.println("java " + System.getProperty("java.version"));
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<String> future = executor.submit(() -> new Scanner(System.in).nextLine());
-
                 /*
                  *
                  * 一 获取token
@@ -99,7 +98,6 @@ public class InvoicePlusExample {
                         ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password,
                                 "");
                         if (loginResponse.getCode() == 200) {
-                            System.out.println(loginResponse.getMsg());
                             System.out.println("请输入验证码");
                             try {
                                 System.out.print("300秒内("
@@ -117,7 +115,6 @@ public class InvoicePlusExample {
                                 ApiResponse<Map<String, Object>> loginResponse2 = client.loginDppt(nsrsbh, username,
                                         password, smsCode);
                                 if (loginResponse2.getCode() == 200) {
-                                    System.out.println(loginResponse2.getData());
                                     System.out.println("验证成功");
                                     System.out.println("请再次调用blueTicket");
                                     blueTicket();
@@ -176,7 +173,7 @@ public class InvoicePlusExample {
 
                         }
                         //命令行终端打印二维码图片
-                        printQR((String) ewmObj);
+                        stringToQrcode((String) ewmObj);
                         System.out.println("成功做完人脸认证,请输入数字 1");
                         try {
                             System.out.print("300秒内(" + LocalDateTime.now().plusSeconds(300)
@@ -284,9 +281,9 @@ public class InvoicePlusExample {
         invoiceParams.put("fpqqlsh", appKey + System.currentTimeMillis());
         invoiceParams.put("ghdwmc", "张四");
         // invoiceParams.put("ghdwsbh", "914208XXXXXXX");
-        invoiceParams.put("hjje", 978.9);
+        invoiceParams.put("hjje", 9.9);
         invoiceParams.put("hjse", 0.1);
-        invoiceParams.put("jshj", 1100);
+        invoiceParams.put("jshj", 10);
         invoiceParams.put("kplx", 0);
         invoiceParams.put("username", username);
         invoiceParams.put("xhdwdzdh", xhdwdzdh);
@@ -316,11 +313,6 @@ public class InvoicePlusExample {
             System.out.println(invoiceResponse.getCode() + "开票成功但返回字段缺失: " + invoiceResponse.getData());
             return;
         } else {
-            fphm = invoiceData.get("Fphm").toString();
-            kprq = invoiceData.get("Kprq").toString();
-            System.out.println("发票号码: " + fphm);
-            System.out.println("开票日期: " + kprq);
-
             // 四 下载发票
             /*
              * 获取销项数电版式文件
@@ -332,8 +324,8 @@ public class InvoicePlusExample {
             pdfParams.put("downflag", "4");
             pdfParams.put("nsrsbh", nsrsbh);
             pdfParams.put("username", username);
-            pdfParams.put("fphm", fphm);
-            pdfParams.put("Kprq", kprq);
+            pdfParams.put("fphm", invoiceData.get("Fphm").toString());
+            pdfParams.put("Kprq", invoiceData.get("Kprq").toString());
 
             ApiResponse<Map<String, Object>> pdfResponse = client.getPdfOfdXml(pdfParams);
             if (pdfResponse.isSuccess()) {
@@ -355,7 +347,8 @@ public class InvoicePlusExample {
         }
     }
 
-    public static void printQR(String content) {
+    // 字符串转二维码 在命令行输出
+    public static void stringToQrcode(String content) {
         try {
             // 1. 计算容错率
             ErrorCorrectionLevel ecLevel = content.length() > 50 ? ErrorCorrectionLevel.L : ErrorCorrectionLevel.M;

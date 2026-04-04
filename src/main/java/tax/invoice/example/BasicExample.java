@@ -23,7 +23,7 @@ import static java.lang.Thread.sleep;
 
 public class BasicExample {
 
-    public static String appKey = "";
+   public static String appKey = "";
     public static String appSecret = "";
 
     public static String nsrsbh = "";// 统一社会信用代码
@@ -31,14 +31,14 @@ public class BasicExample {
     public static String username = "";// 手机号码（电子税务局）
     public static String password = "";// 个人用户密码（电子税务局）
     public static String type = "6";// 6 基础 7标准
-    public static String xhdwdzdh = "重庆市渝北区龙溪街道丽园路2号XXXX 1325580XXXX"; // 地址 电话
-    public static String xhdwyhzh = "工商银行XXXX 15451211XXXX";// 开户行 银行账号
-    public static String fphm = "";
-    public static String kprq = "";
+    public static String xhdwdzdh = "重庆市渝北区龙溪街道丽园路2号XXXX 1325580XXXX"; // 地址和电话 空格隔开
+    public static String xhdwyhzh = "工商银行XXXX 15451211XXXX";// 开户行和银行账号 空格隔开
+
     public static String token = "";
+    public static boolean debug = true; // 是否打印日志
 
     // 创建客户端
-    public static InvoiceClient client = new InvoiceClient(appKey, appSecret);
+    public static InvoiceClient client = new InvoiceClient(appKey, appSecret,debug);
 
     // redis
     public static Jedis redisClient = new Jedis("127.0.0.1", 6379);
@@ -75,10 +75,8 @@ public class BasicExample {
             switch (invoiceResponse.getCode()) {
                 case 200:
                     Map<String, Object> invoiceData = invoiceResponse.getData();
-                    fphm = invoiceData.get("Fphm").toString();
-                    kprq = invoiceData.get("Kprq").toString();
                     // 三 下载发票
-                    downloadInvoice();
+                    downloadPdfOfdXml(invoiceData.get("Fphm").toString(),invoiceData.get("Kprq").toString());
                     break;
                 case 420:
                     System.out.println("420 登录(短信认证)");
@@ -91,10 +89,8 @@ public class BasicExample {
                     /*
                      * @see https://fa-piao.com/doc.html#api2?source=github
                      */
-                    ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password,
-                            "");
+                    ApiResponse<Map<String, Object>> loginResponse = client.loginDppt(nsrsbh, username, password,"");
                     if (loginResponse.getCode() == 200) {
-                        System.out.println(loginResponse.getMsg());
                         System.out.println("请输入验证码");
                         try {
                             System.out.print("300秒内("
@@ -112,14 +108,11 @@ public class BasicExample {
                             ApiResponse<Map<String, Object>> loginResponse2 = client.loginDppt(nsrsbh, username,
                                     password, smsCode);
                             if (loginResponse2.getCode() == 200) {
-                                System.out.println(loginResponse2.getData());
                                 System.out.println("验证成功");
                                 System.out.println("请再次调用blueTicket");
                                 ApiResponse<Map<String, Object>> invoiceResponse2 = blueTicket();
-                                if(invoiceResponse2.getCode() == 200) {
-                                    fphm = invoiceResponse2.getData().get("Fphm").toString();
-                                    kprq = invoiceResponse2.getData().get("Kprq").toString();
-                                    downloadInvoice();
+                                if(invoiceResponse2.getCode() == 200) {                              
+                                    downloadPdfOfdXml(invoiceResponse2.getData().get("Fphm").toString(),invoiceResponse2.getData().get("Kprq").toString());
                                 }
                             } else {
                                 System.out.println(loginResponse2.getCode() + "验证失败: " + loginResponse2.getMsg());
@@ -152,7 +145,7 @@ public class BasicExample {
                     }
                     Object ewmlyObj = qrData.get("ewmly");
                     String ewmly = ewmlyObj == null ? "" : ewmlyObj.toString();
-                    System.out.println("swj".equals(ewmly) ? "请使用税务局app扫码" : "个人所得税app扫码");
+                    System.out.println("swj".equals(ewmly) ? "请使用电子税务局app扫码" : "个人所得税app扫码");
                     Object ewmObj = qrData.get("ewm");
                     if (ewmObj != null && ewmObj.toString().length() < 500) {
                         // 字符串转二维码图片base64
@@ -176,7 +169,7 @@ public class BasicExample {
 
                     }
                     //字符串转二维码图片 命令行终端打印
-                    printQR((String) ewmObj);
+                    stringToQrcode((String) ewmObj);
                     System.out.println("成功做完人脸认证,请输入数字 1");
                     try {
                         System.out.print("300秒内(" + LocalDateTime.now().plusSeconds(300)
@@ -189,20 +182,15 @@ public class BasicExample {
                          * @see https://fa-piao.com/doc.html#api4?source=github
                          */
                         String rzid = qrCodeResponse.getData().get("rzid").toString();
-                        ApiResponse<Map<String, Object>> faceStatusResponse = client.getFaceState(nsrsbh, rzid,
-                                username, "1");
-                        System.out.println("code: " + faceStatusResponse.getCode());
-                        System.out.println("data: " + faceStatusResponse.getData());
+                        ApiResponse<Map<String, Object>> faceStatusResponse = client.getFaceState(nsrsbh, rzid,username, "1");
                         if (faceStatusResponse.getData() != null) {
                             String slzt = faceStatusResponse.getData().get("slzt").toString();
                             if ("2".equals(slzt)) {
                                 System.out.println("认证状态: 成功");
                                 System.out.println("请再次调用blueTicket");
                                 ApiResponse<Map<String, Object>> invoiceResponse3 = blueTicket();
-                                if(invoiceResponse3.getCode() == 200) {
-                                    fphm = invoiceResponse3.getData().get("Fphm").toString();
-                                    kprq = invoiceResponse3.getData().get("Kprq").toString();
-                                    downloadInvoice();
+                                if(invoiceResponse3.getCode() == 200) {                
+                                    downloadPdfOfdXml(invoiceResponse3.getData().get("Fphm").toString(),invoiceResponse3.getData().get("Kprq").toString());
                                 }
                             } else {
                                 System.out.println("认证状态: " + ("1".equals(slzt) ? "未认证" : "二维码过期"));
@@ -223,9 +211,7 @@ public class BasicExample {
                     System.out.println("再调用blueTicket");
                     ApiResponse<Map<String, Object>> invoiceResponse4 = blueTicket();
                     if(invoiceResponse4.getCode() == 200) {
-                        fphm = invoiceResponse4.getData().get("Fphm").toString();
-                        kprq = invoiceResponse4.getData().get("Kprq").toString();
-                        downloadInvoice();
+                        downloadPdfOfdXml(invoiceResponse4.getData().get("Fphm").toString(),invoiceResponse4.getData().get("Kprq").toString());
                     }
                     break;
                 default:
@@ -320,7 +306,7 @@ public class BasicExample {
         return client.blueTicket(invoiceParams);
     }
     // 发票下载
-    public static void downloadInvoice() throws Exception {
+    public static void downloadPdfOfdXml(String fphm,String kprq) throws Exception {
         System.out.println("发票号码: " + fphm);
         System.out.println("开票日期: " + kprq);
         /*
@@ -356,7 +342,7 @@ public class BasicExample {
     }
 
     // 字符串转二维码 在命令行输出
-    public static void printQR(String content) {
+    public static void stringToQrcode(String content) {
         try {
             // 1. 计算容错率
             ErrorCorrectionLevel ecLevel = content.length() > 50 ? ErrorCorrectionLevel.L : ErrorCorrectionLevel.M;

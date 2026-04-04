@@ -20,12 +20,20 @@ public class InvoiceClient {
     private String authorization;
     
     public InvoiceClient(String appKey, String appSecret) {
-        this(new InvoiceConfig(appKey, appSecret));
+        this(appKey, appSecret, false);
+    }
+
+    public InvoiceClient(String appKey, String appSecret, boolean debug) {
+        this(new InvoiceConfig(appKey, appSecret), debug);
     }
     
     public InvoiceClient(InvoiceConfig config) {
+        this(config, false);
+    }
+
+    public InvoiceClient(InvoiceConfig config, boolean debug) {
         this.config = config;
-        this.httpClient = new HttpClient(config);
+        this.httpClient = new HttpClient(config, debug);
     }
     
     /**
