@@ -35,13 +35,13 @@
 <dependency>
     <groupId>io.github.fapiaoapi</groupId>
     <artifactId>invoice</artifactId>
-    <version>1.0.21</version>
+    <version>1.0.22</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'io.github.fapiaoapi:invoice:1.0.21'
+implementation 'io.github.fapiaoapi:invoice:1.0.22'
 ```
 
 [📦 查看Maven Central最新版本](https://central.sonatype.com/artifact/io.github.fapiaoapi/invoice)
@@ -160,9 +160,6 @@ public class BasicExample {
             /*
              * 前端模拟数电发票/电子发票开具 (蓝字发票)
              * @see https://fa-piao.com/fapiao.html?source=github
-             *
-             * 开具数电发票文档
-             * @see https://fa-piao.com/doc.html#api6?source=github
              *
              */
 
@@ -365,7 +362,7 @@ public class BasicExample {
     public static ApiResponse<Map<String, Object>> blueTicket() throws Exception {
         /*
          *
-         * 开票参数说明demo
+         * 开票税额计算说明demo
          *
          * @see
          * https://github.com/fapiaoapi/invoice-sdk-java/blob/master/examples/TaxExample
@@ -397,7 +394,11 @@ public class BasicExample {
         invoiceParams.put("fyxm[0][se]", 0.1);
         invoiceParams.put("fyxm[0][hsbz]", 1);
         invoiceParams.put("fyxm[0][spbm]", "1060408990000000000");
-
+        /*
+         * 开具数电发票文档
+         * @see https://fa-piao.com/doc.html#api6?source=github
+         *
+         */
         return client.blueTicket(invoiceParams);
     }
     // 发票下载
@@ -439,62 +440,66 @@ public class BasicExample {
     // 字符串转二维码 在命令行输出
     public static void stringToQrcode(String content) {
         try {
-            // 1. 计算容错率
             ErrorCorrectionLevel ecLevel = content.length() > 50 ? ErrorCorrectionLevel.L : ErrorCorrectionLevel.M;
-
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.ERROR_CORRECTION, ecLevel);
-            // 默认边距设为1，保证紧凑
-            hints.put(EncodeHintType.MARGIN, 1);
+            hints.put(EncodeHintType.MARGIN, 0);
 
-            // 2. 【关键修改】尺寸缩小1倍
-            // 将 requestedWidth/Height 从 1 改为 2。
-            // 这会让 ZXing 生成更紧凑的矩阵，而不是强制最小尺寸（最小尺寸通常模块很大）。
-            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 2, 2, hints);
+            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 1, 1, hints);
+            int size = matrix.getWidth();
+            int maxModules = 52;
+            int scale = Math.max(1, (int) Math.ceil((double) size / maxModules));
+            int renderedSize = (int) Math.ceil((double) size / scale);
 
-            int width = matrix.getWidth();
-
-            // 3. 警告信息
-            if (width > 55) {
-                System.out.println("⚠️ 警告：内容过长，二维码尺寸过大(" + width + "x" + width + ")，可能无法识别。建议使用短链接！");
-            }
-
-            // System.out.println("👇 请扫描下方二维码 (内容长度: " + content.length() + ") 👇");
-
-            // 4. 【关键修改】统一渲染逻辑，强制正方形
-            // 使用 Unicode 块字符 (▀▄) 可以在一行内表示两个像素的高度，
-            // 这样既保证了输出是正方形（避免终端行高导致的变形），又保持了高分辨率。
-            for (int y = 0; y < width; y += 2) {
-                StringBuilder line = new StringBuilder();
-                for (int x = 0; x < width; x++) {
-                    // 获取当前行 (Top) 和下一行 (Bottom) 的像素状态
-                    boolean isTop = matrix.get(x, y);
-                    boolean isBottom = false;
-
-                    // 防止数组越界（当高度为奇数时）
-                    if (y + 1 < width) {
-                        isBottom = matrix.get(x, y + 1);
-                    }
-
-                    // 根据上下两个像素的状态选择字符
-                    if (isTop && isBottom)
-                        line.append("██"); // 上下都是黑
-                    else if (isTop)
-                        line.append("▀▀"); // 上黑下白
-                    else if (isBottom)
-                        line.append("▄▄"); // 上白下黑
-                    else
-                        line.append("  "); // 上下都是白
-                }
-                System.out.println(line);
-            }
-
-            // System.out.println("👆 扫描结束 👆");
-
+            System.out.println("请扫描下方二维码 (内容长度: " + content.length() + ", 原尺寸: " + size + "x" + size + ", 输出尺寸: " + renderedSize + "x" + renderedSize + ")");
+            renderQrCompact(matrix, scale);
+            System.out.println("扫描结束");
         } catch (WriterException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void renderQrCompact(BitMatrix matrix, int scale) {
+        int size = matrix.getWidth();
+        int colIndex;
+        for (int y = 0; y < size; y += scale * 2) {
+            StringBuilder line = new StringBuilder();
+            colIndex = 0;
+            for (int x = 0; x < size; x += scale) {
+                boolean topBlack = hasBlackInBlock(matrix, x, y, scale);
+                boolean bottomBlack = hasBlackInBlock(matrix, x, y + scale, scale);
+                boolean useNarrowCell = (colIndex + 1) % 5 == 0;
+                if (topBlack && bottomBlack) {
+                    line.append(useNarrowCell ? "█" : "██");
+                } else if (topBlack) {
+                    line.append(useNarrowCell ? "▀" : "▀▀");
+                } else if (bottomBlack) {
+                    line.append(useNarrowCell ? "▄" : "▄▄");
+                } else {
+                    line.append(useNarrowCell ? " " : "  ");
+                }
+                colIndex++;
+            }
+            System.out.println(line);
+        }
+    }
+
+    public static boolean hasBlackInBlock(BitMatrix matrix, int startX, int startY, int scale){
+        int width = matrix.getWidth();
+        if (startX >= width || startY >= width) {
+            return false;
+        }
+        int endX = Math.min(startX + scale, width);
+        int endY = Math.min(startY + scale, width);
+        for (int y = startY; y < endY; y++) {
+            for (int x = startX; x < endX; x++) {
+                if (matrix.get(x, y)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
@@ -504,7 +509,7 @@ public class BasicExample {
 
 [发票红冲demo](src/main/java/tax/invoice/example/RedInvoiceExample.java "发票红冲demo")
 [发票税额计算demo](src/main/java/tax/invoice/example/TaxExample.java "发票税额计算demo")
-[先验证后开发票demo](src/main/java/tax/invoice/example/InvoiceExample.java "先验证后开票发票demo")
+[扫码登录demo](src/main/java/tax/invoice/example/FaceLoginExample.java "扫码登录demo")
 [先验证后开发票命令行demo](src/main/java/tax/invoice/example/InvoiceExample.java "先验证后开发票命令行demo")
 
 

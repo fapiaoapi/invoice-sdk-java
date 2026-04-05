@@ -103,7 +103,7 @@ public class InvoiceExample {
 
                      /*
                       *
-                      * 开票参数说明demo
+                      * 开票税额计算说明demo
                       * @see https://github.com/fapiaoapi/invoice-sdk-java/blob/master/examples/TaxExample.java
                       */
                      //开具蓝票参数

@@ -26,11 +26,12 @@ public class InvoicePlusExample {
     public static String appKey = "";
     public static String appSecret = "";
 
-    public static String nsrsbh = "";// 统一社会信用代码
-    public static String title = "重庆悦江河科技有限公司";// 名称（营业执照）
-    public static String username = "";// 手机号码（电子税务局）
+    public static String nsrsbh = "";// 统一社会信用代码  当前登录的纳税人识别号
+    public static String title = "";//名称（营业执照）
+    public static String username = "";//手机号码（电子税务局）
     public static String password = "";// 个人用户密码（电子税务局）
     public static String type = "7";// 6 基础 7标准
+
     public static String xhdwdzdh = "重庆市渝北区龙溪街道丽园路2号XXXX 1325580XXXX"; // 地址 电话
     public static String xhdwyhzh = "工商银行XXXX 15451211XXXX";// 开户行 银行账号
 
@@ -270,7 +271,7 @@ public class InvoicePlusExample {
     public static void blueTicket() throws Exception {
         /*
          *
-         * 开票参数说明demo
+         * 开票税额计算说明demo
          * 
          * @see
          * https://github.com/fapiaoapi/invoice-sdk-java/blob/master/examples/TaxExample
@@ -283,7 +284,7 @@ public class InvoicePlusExample {
         // invoiceParams.put("ghdwsbh", "914208XXXXXXX");
         invoiceParams.put("hjje", 9.9);
         invoiceParams.put("hjse", 0.1);
-        invoiceParams.put("jshj", 10);
+        invoiceParams.put("jshj", 100);
         invoiceParams.put("kplx", 0);
         invoiceParams.put("username", username);
         invoiceParams.put("xhdwdzdh", xhdwdzdh);
@@ -305,35 +306,34 @@ public class InvoicePlusExample {
 
         ApiResponse<Map<String, Object>> invoiceResponse = client.blueTicket(invoiceParams);
         Map<String, Object> invoiceData = invoiceResponse.getData();
-        if (!invoiceResponse.isSuccess()) {
-            System.out.println(invoiceResponse.getCode() + "开票失败: " + invoiceResponse.getMsg());
-            return;
-        }
-        if (invoiceData == null || invoiceData.get("Fphm") == null || invoiceData.get("Kprq") == null) {
-            System.out.println(invoiceResponse.getCode() + "开票成功但返回字段缺失: " + invoiceResponse.getData());
-            return;
-        } else {
-            // 四 下载发票
-            /*
-             * 获取销项数电版式文件
-             * 
-             * @see https://fa-piao.com/doc.html#api7?source=github
-             *
-             */
-            Map<String, Object> pdfParams = new HashMap<>();
-            pdfParams.put("downflag", "4");
-            pdfParams.put("nsrsbh", nsrsbh);
-            pdfParams.put("username", username);
-            pdfParams.put("fphm", invoiceData.get("Fphm").toString());
-            pdfParams.put("Kprq", invoiceData.get("Kprq").toString());
+        if (invoiceResponse.isSuccess()) {
+            if (invoiceData == null || invoiceData.get("Fphm") == null || invoiceData.get("Kprq") == null) {
+                System.out.println(invoiceResponse.getCode() + "开票成功但返回字段缺失: " + invoiceResponse.getData());
+                return;
+            } else {
+                // 四 下载发票
+                /*
+                 * 获取销项数电版式文件
+                 *
+                 * @see https://fa-piao.com/doc.html#api7?source=github
+                 *
+                 */
+                Map<String, Object> pdfParams = new HashMap<>();
+                pdfParams.put("downflag", "4");
+                pdfParams.put("nsrsbh", nsrsbh);
+                pdfParams.put("username", username);
+                pdfParams.put("fphm", invoiceData.get("Fphm").toString());
+                pdfParams.put("Kprq", invoiceData.get("Kprq").toString());
 
-            ApiResponse<Map<String, Object>> pdfResponse = client.getPdfOfdXml(pdfParams);
-            if (pdfResponse.isSuccess()) {
-                System.out.println("发票下载成功");
-                System.out.println(pdfResponse.getData());
+                ApiResponse<Map<String, Object>> pdfResponse = client.getPdfOfdXml(pdfParams);
+                if (pdfResponse.isSuccess()) {
+                    System.out.println("发票下载成功");
+                    System.out.println(pdfResponse.getData());
+                }
             }
+        }else{
+            System.out.println(invoiceResponse.getCode() + "开票失败: " + invoiceResponse.getMsg());
         }
-
     }
 
     public static String toBase64(String text, int size) {
@@ -350,62 +350,66 @@ public class InvoicePlusExample {
     // 字符串转二维码 在命令行输出
     public static void stringToQrcode(String content) {
         try {
-            // 1. 计算容错率
             ErrorCorrectionLevel ecLevel = content.length() > 50 ? ErrorCorrectionLevel.L : ErrorCorrectionLevel.M;
-
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.ERROR_CORRECTION, ecLevel);
-            // 默认边距设为1，保证紧凑
-            hints.put(EncodeHintType.MARGIN, 1);
+            hints.put(EncodeHintType.MARGIN, 0);
 
-            // 2. 【关键修改】尺寸缩小1倍
-            // 将 requestedWidth/Height 从 1 改为 2。
-            // 这会让 ZXing 生成更紧凑的矩阵，而不是强制最小尺寸（最小尺寸通常模块很大）。
-            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 2, 2, hints);
+            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 1, 1, hints);
+            int size = matrix.getWidth();
+            int maxModules = 52;
+            int scale = Math.max(1, (int) Math.ceil((double) size / maxModules));
+            int renderedSize = (int) Math.ceil((double) size / scale);
 
-            int width = matrix.getWidth();
-
-            // 3. 警告信息
-            if (width > 55) {
-                System.out.println("⚠️ 警告：内容过长，二维码尺寸过大(" + width + "x" + width + ")，可能无法识别。建议使用短链接！");
-            }
-
-            // System.out.println("👇 请扫描下方二维码 (内容长度: " + content.length() + ") 👇");
-
-            // 4. 【关键修改】统一渲染逻辑，强制正方形
-            // 使用 Unicode 块字符 (▀▄) 可以在一行内表示两个像素的高度，
-            // 这样既保证了输出是正方形（避免终端行高导致的变形），又保持了高分辨率。
-            for (int y = 0; y < width; y += 2) {
-                StringBuilder line = new StringBuilder();
-                for (int x = 0; x < width; x++) {
-                    // 获取当前行 (Top) 和下一行 (Bottom) 的像素状态
-                    boolean isTop = matrix.get(x, y);
-                    boolean isBottom = false;
-
-                    // 防止数组越界（当高度为奇数时）
-                    if (y + 1 < width) {
-                        isBottom = matrix.get(x, y + 1);
-                    }
-
-                    // 根据上下两个像素的状态选择字符
-                    if (isTop && isBottom)
-                        line.append("██"); // 上下都是黑
-                    else if (isTop)
-                        line.append("▀▀"); // 上黑下白
-                    else if (isBottom)
-                        line.append("▄▄"); // 上白下黑
-                    else
-                        line.append("  "); // 上下都是白
-                }
-                System.out.println(line);
-            }
-
-            // System.out.println("👆 扫描结束 👆");
-
+            System.out.println("请扫描下方二维码 (内容长度: " + content.length() + ", 原尺寸: " + size + "x" + size + ", 输出尺寸: " + renderedSize + "x" + renderedSize + ")");
+            renderQrCompact(matrix, scale);
+            System.out.println("扫描结束");
         } catch (WriterException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void renderQrCompact(BitMatrix matrix, int scale) {
+        int size = matrix.getWidth();
+        int colIndex;
+        for (int y = 0; y < size; y += scale * 2) {
+            StringBuilder line = new StringBuilder();
+            colIndex = 0;
+            for (int x = 0; x < size; x += scale) {
+                boolean topBlack = hasBlackInBlock(matrix, x, y, scale);
+                boolean bottomBlack = hasBlackInBlock(matrix, x, y + scale, scale);
+                boolean useNarrowCell = (colIndex + 1) % 5 == 0;
+                if (topBlack && bottomBlack) {
+                    line.append(useNarrowCell ? "█" : "██");
+                } else if (topBlack) {
+                    line.append(useNarrowCell ? "▀" : "▀▀");
+                } else if (bottomBlack) {
+                    line.append(useNarrowCell ? "▄" : "▄▄");
+                } else {
+                    line.append(useNarrowCell ? " " : "  ");
+                }
+                colIndex++;
+            }
+            System.out.println(line);
+        }
+    }
+
+    public static boolean hasBlackInBlock(BitMatrix matrix, int startX, int startY, int scale) {
+        int width = matrix.getWidth();
+        if (startX >= width || startY >= width) {
+            return false;
+        }
+        int endX = Math.min(startX + scale, width);
+        int endY = Math.min(startY + scale, width);
+        for (int y = startY; y < endY; y++) {
+            for (int x = startX; x < endX; x++) {
+                if (matrix.get(x, y)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
