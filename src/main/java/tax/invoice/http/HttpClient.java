@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -30,6 +31,7 @@ public class HttpClient {
         this.debug = debug;
         this.client = java.net.http.HttpClient.newBuilder()
                 .version(java.net.http.HttpClient.Version.HTTP_2)
+                .connectTimeout(Duration.ofSeconds(150))
                 .build();
     }
     
@@ -140,7 +142,8 @@ public class HttpClient {
                 .header("Sign", signature)
                 .header("TimeStamp", timestamp)
                 .header("RandomString", randomString)
-                .header("Accept-Charset", "UTF-8"); // 添加字符集
+                .header("Accept-Charset", "UTF-8")
+                .timeout(Duration.ofSeconds(150)); // 添加字符集
         
         if (authorization != null && !authorization.isEmpty()) {
             requestBuilder.header("Authorization", authorization);
@@ -209,7 +212,8 @@ public class HttpClient {
                 .header("TimeStamp", timestamp)
                 .header("RandomString", randomString)
                 .header("Content-Type", contentType)
-                .header("Accept-Charset", "UTF-8");
+                .header("Accept-Charset", "UTF-8")
+                .timeout(Duration.ofSeconds(150));
 
         if (authorization != null && !authorization.isEmpty()) {
             builder.header("Authorization", authorization);
