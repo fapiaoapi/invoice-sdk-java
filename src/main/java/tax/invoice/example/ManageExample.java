@@ -27,7 +27,7 @@ public class ManageExample {
 
             String nsrsbh = "91500108MA619JCxx";//统一社会信用代码
             String title = "重庆xxx科技有限公司";//名称（营业执照）
-            String username = "1912284xxxx";//手机号码（电子税务局）
+            String username = "1916684xxxx";//手机号码（电子税务局）
             String password = "6668xxxx";//个人用户密码（电子税务局）
             String sf = "01";//身份（电子税务局）
 

@@ -143,6 +143,7 @@ public class HttpClient {
                 .header("TimeStamp", timestamp)
                 .header("RandomString", randomString)
                 .header("Accept-Charset", "UTF-8")
+                .header("Sdk", "java1024")
                 .timeout(Duration.ofSeconds(150)); // 添加字符集
         
         if (authorization != null && !authorization.isEmpty()) {
@@ -213,6 +214,7 @@ public class HttpClient {
                 .header("RandomString", randomString)
                 .header("Content-Type", contentType)
                 .header("Accept-Charset", "UTF-8")
+                .header("Sdk", "java1024")
                 .timeout(Duration.ofSeconds(150));
 
         if (authorization != null && !authorization.isEmpty()) {
