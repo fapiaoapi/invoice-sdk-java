@@ -20,48 +20,87 @@ public class ApiResponse<T> {
     private String msg;
     private T data;
     private int total;
-    
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    
+
+    /**
+     * 无参构造
+     */
     public ApiResponse() {
     }
-    
+
+    /**
+     * 获取响应码
+     * @return 响应码
+     */
     public int getCode() {
         return code;
     }
-    
+
+    /**
+     * 设置响应码
+     * @param code 响应码
+     */
     public void setCode(int code) {
         this.code = code;
     }
-    
+
+    /**
+     * 获取响应消息
+     * @return 消息
+     */
     public String getMsg() {
         return msg == null ? "" : msg;
     }
-    
+
+    /**
+     * 设置响应消息
+     * @param msg 消息
+     */
     public void setMsg(String msg) {
         this.msg = msg;
     }
-    
+
+    /**
+     * 获取数据体
+     * @return 数据
+     */
     public T getData() {
         return data;
     }
-    
+
+    /**
+     * 设置数据体
+     * @param data 数据
+     */
     public void setData(T data) {
         this.data = data;
     }
-    
+
+    /**
+     * 获取总数
+     * @return 总数
+     */
     public int getTotal() {
         return total;
     }
-    
+
+    /**
+     * 设置总数
+     * @param total 总数
+     */
     public void setTotal(int total) {
         this.total = total;
     }
-    
+
+    /**
+     * 是否请求成功
+     * @return 是否成功
+     */
     public boolean isSuccess() {
         return code == 200;
     }
-    
+
     /**
      * 解析 JSON 响应
      * @param json JSON 字符串
@@ -78,7 +117,7 @@ public class ApiResponse<T> {
             return buildErrorResponse(extractErrorMessage(json));
         }
     }
-    
+
     /**
      * 解析 JSON 响应（数据为字符串类型）
      * @param json JSON 字符串
@@ -88,39 +127,61 @@ public class ApiResponse<T> {
     public static ApiResponse<String> fromJson(String json) throws Exception {
         return fromJson(json, String.class);
     }
-    
-    // 在 ApiResponse 类中添加以下方法
+
     /**
-     * 解析 JSON 响应（Map类型）
+     * 将 JSON 字符串解析为 ApiResponse
      * @param json JSON 字符串
-     * @return API 响应对象
-     * @throws Exception JSON 解析异常
+     * @return 解析后的 ApiResponse 对象
+     * @throws Exception 解析异常时抛出
      */
-    public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception {
+    public static ApiResponse<Map<String, Object>> fromJsonMap(String json) throws Exception{
         try {
             JsonNode root = objectMapper.readTree(json);
             ApiResponse<Map<String, Object>> response = new ApiResponse<>();
+
             response.setCode(root.path("code").asInt(-1));
             response.setMsg(root.path("msg").asText(""));
             response.setTotal(root.path("total").asInt(0));
+
             JsonNode dataNode = root.get("data");
-            response.setData(parseMapDataNode(dataNode));
+            if (dataNode != null && dataNode.isObject()) {
+                response.setData(parseMapDataNode(dataNode));
+            } else {
+                response.setData(null);
+            }
+
             return response;
         } catch (Exception e) {
             return buildErrorResponse(extractErrorMessage(json));
         }
     }
-    
 
+    /**
+     * 将 JSON 字符串解析为包含 List 结构的 ApiResponse
+     * @param json JSON 字符串
+     * @return 解析后的 ApiResponse 对象
+     * @throws Exception 解析异常
+     */
     public static ApiResponse<List<Map<String, Object>>> fromJsonListMap(String json) throws Exception {
         try {
+            if (json == null || json.trim().isEmpty()) {
+                return buildErrorResponse("响应体为空");
+            }
+
             JsonNode root = objectMapper.readTree(json);
             ApiResponse<List<Map<String, Object>>> response = new ApiResponse<>();
+
             response.setCode(root.path("code").asInt(-1));
             response.setMsg(root.path("msg").asText(""));
             response.setTotal(root.path("total").asInt(0));
+
             JsonNode dataNode = root.get("data");
-            response.setData(parseListMapDataNode(dataNode));
+            if (dataNode != null && dataNode.isArray()) {
+                response.setData(parseListMapDataNode(dataNode));
+            } else {
+                response.setData(null);
+            }
+
             return response;
         } catch (Exception e) {
             return buildErrorResponse(extractErrorMessage(json));

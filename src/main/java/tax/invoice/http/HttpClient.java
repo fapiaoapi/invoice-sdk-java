@@ -54,6 +54,10 @@ public class HttpClient {
         );
         String boundary = "----Java" + SignatureUtil.generateRandomString(20);
         byte[] requestBody = buildMultipartBody(formData, boundary);
+        
+        // 打印完整的multipart/form-data请求体
+//        System.out.println("requestBody: " + new String(requestBody, StandardCharsets.UTF_8));
+
         HttpRequest request = buildRequestBuilder(
                 path,
                 signature,
@@ -143,7 +147,7 @@ public class HttpClient {
                 .header("TimeStamp", timestamp)
                 .header("RandomString", randomString)
                 .header("Accept-Charset", "UTF-8")
-                .header("Sdk", "java1025")
+                .header("Sdk", "java1026")
                 .timeout(Duration.ofSeconds(150)); // 添加字符集
         
         if (authorization != null && !authorization.isEmpty()) {
@@ -214,7 +218,7 @@ public class HttpClient {
                 .header("RandomString", randomString)
                 .header("Content-Type", contentType)
                 .header("Accept-Charset", "UTF-8")
-                .header("Sdk", "java1025")
+                .header("Sdk", "java1026")
                 .timeout(Duration.ofSeconds(150));
 
         if (authorization != null && !authorization.isEmpty()) {

@@ -25,7 +25,7 @@ public class ManageExample {
             String appKey = "";
             String appSecret = "";
 
-            String nsrsbh = "91500108MA619JCxx";//统一社会信用代码
+            String nsrsbh = "91500108MA619xxxx";//统一社会信用代码
             String title = "重庆xxx科技有限公司";//名称（营业执照）
             String username = "1916684xxxx";//手机号码（电子税务局）
             String password = "6668xxxx";//个人用户密码（电子税务局）
@@ -39,7 +39,7 @@ public class ManageExample {
                 client.setAuthorization(token);
             } else {
                 // 获取授权
-                ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization("92500103MAD7F8H17D","5");
+                ApiResponse<AuthorizationResponse> authResponse = client.getAuthorization("92500103MAD7F8xxxx","5");
                 if (authResponse.isSuccess()) {
                     System.out.println("授权成功，Token: " + authResponse.getData().getToken());
                 }else{
